@@ -215,7 +215,7 @@ export const mockProperties: Property[] = [
       triple: 11000
     },
     images: ['/placeholder.svg'],
-    genderPreference: 'any',
+    genderPreference: 'co-living',
     propertyType: 'single',
     amenities: ['WiFi', 'AC', 'Parking', 'Security', 'Balcony'],
     hostName: 'Shalini Gupta',
@@ -265,7 +265,7 @@ export const mockProperties: Property[] = [
       triple: 7000
     },
     images: ['/placeholder.svg'],
-    genderPreference: 'any',
+    genderPreference: 'co-living',
     propertyType: 'shared',
     amenities: ['WiFi', 'Meals', 'Security', 'Study Room'],
     hostName: 'Deepika Sharma',
@@ -280,3 +280,7 @@ export const mockProperties: Property[] = [
     createdAt: '2023-12-10'
   }
 ];
+
+// Export featured and trending properties for the Index page
+export const featuredProperties = mockProperties.slice(0, 3);
+export const trendingProperties = mockProperties.slice(3, 6);
