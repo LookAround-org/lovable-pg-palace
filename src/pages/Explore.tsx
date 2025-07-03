@@ -220,7 +220,7 @@ const Explore = () => {
                           id={amenity}
                           checked={amenities.includes(amenity)}
                           onCheckedChange={(checked) => 
-                            handleAmenityChange(amenity, checked as boolean)
+                            handleAmenityChange(amenity, checked === true)
                           }
                         />
                         <Label htmlFor={amenity} className="text-sm">
@@ -236,7 +236,7 @@ const Explore = () => {
                   <Checkbox
                     id="virtual-tour"
                     checked={virtualTour}
-                    onCheckedChange={setVirtualTour}
+                    onCheckedChange={(checked) => setVirtualTour(checked === true)}
                   />
                   <Label htmlFor="virtual-tour" className="text-sm">
                     Virtual Tour Available

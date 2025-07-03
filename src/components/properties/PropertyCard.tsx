@@ -15,7 +15,7 @@ interface Property {
   images: string[];
   genderPreference: 'men' | 'women' | 'co-living';
   amenities: string[];
-  virtualTour?: boolean;
+  virtualTour?: string;
   hostName: string;
   hostAvatar?: string;
   rating?: number;
