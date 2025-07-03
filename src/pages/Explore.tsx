@@ -8,21 +8,24 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
-import { Search, Filter, X, SlidersHorizontal, MapPin, Star } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Search, Filter, X, SlidersHorizontal, MapPin, Star, Home, Users } from 'lucide-react';
 import { mockProperties } from '@/data/mockData';
 
 const Explore = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   
-  // Filter states
+  // Enhanced filter states
   const [location, setLocation] = useState(searchParams.get('location') || '');
-  const [priceRange, setPriceRange] = useState([5000, 20000]);
+  const [priceRange, setPriceRange] = useState([5000, 25000]);
   const [genderPreference, setGenderPreference] = useState('any');
   const [amenities, setAmenities] = useState<string[]>([]);
   const [virtualTour, setVirtualTour] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
   const [propertyType, setPropertyType] = useState('any');
+  const [sharingType, setSharingType] = useState('any');
   const [rating, setRating] = useState(0);
 
   const availableAmenities = [
@@ -38,8 +41,13 @@ const Explore = () => {
         return false;
       }
       
-      // Price filter
-      if (property.price < priceRange[0] || property.price > priceRange[1]) {
+      // Price filter based on sharing type
+      let propertyPrice = property.price;
+      if (sharingType === 'single') propertyPrice = property.sharingOptions.single;
+      else if (sharingType === 'double') propertyPrice = property.sharingOptions.double;
+      else if (sharingType === 'triple') propertyPrice = property.sharingOptions.triple;
+      
+      if (propertyPrice < priceRange[0] || propertyPrice > priceRange[1]) {
         return false;
       }
       
@@ -87,7 +95,7 @@ const Explore = () => {
     }
 
     return filtered;
-  }, [location, priceRange, genderPreference, amenities, virtualTour, sortBy, propertyType, rating]);
+  }, [location, priceRange, genderPreference, amenities, virtualTour, sortBy, propertyType, rating, sharingType]);
 
   const handleAmenityChange = (amenity: string, checked: boolean) => {
     if (checked) {
@@ -99,77 +107,94 @@ const Explore = () => {
 
   const clearFilters = () => {
     setLocation('');
-    setPriceRange([5000, 20000]);
+    setPriceRange([5000, 25000]);
     setGenderPreference('any');
     setAmenities([]);
     setVirtualTour(false);
     setSortBy('newest');
     setPropertyType('any');
+    setSharingType('any');
     setRating(0);
     setSearchParams({});
   };
 
+  const activeFiltersCount = [
+    location,
+    genderPreference !== 'any',
+    amenities.length > 0,
+    virtualTour,
+    propertyType !== 'any',
+    sharingType !== 'any',
+    rating > 0,
+    priceRange[0] !== 5000 || priceRange[1] !== 25000
+  ].filter(Boolean).length;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      {/* Hero Section with Gradient */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      {/* Enhanced Hero Section */}
       <div className="bg-gradient-cool relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 animate-fadeInUp">
-            Discover Your Perfect PG
+        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fadeInUp">
+            Find Your Perfect PG
           </h1>
-          <p className="text-xl text-white/90 mb-8 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
-            Find safe, comfortable, and affordable accommodations
+          <p className="text-xl text-white/90 mb-8 animate-fadeInUp max-w-2xl mx-auto" style={{animationDelay: '0.2s'}}>
+            Discover safe, comfortable, and affordable accommodations tailored to your needs
           </p>
           
           {/* Enhanced Search Bar */}
-          <div className="max-w-2xl mx-auto glass-effect rounded-2xl p-6 animate-scaleIn" style={{animationDelay: '0.4s'}}>
-            <div className="flex flex-col md:flex-row gap-4">
+          <div className="max-w-3xl mx-auto glass-effect rounded-2xl p-6 animate-scaleIn" style={{animationDelay: '0.4s'}}>
+            <div className="flex flex-col lg:flex-row gap-4">
               <div className="relative flex-1">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <Input
                   placeholder="Enter location, area, or landmark..."
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="pl-10 h-12 bg-white/90 border-0 text-gray-800 placeholder-gray-500"
+                  className="pl-12 h-14 bg-white/95 border-0 text-gray-800 placeholder-gray-500 text-lg"
                 />
               </div>
-              <Button className="h-12 px-8 bg-white text-gray-800 hover:bg-gray-100 font-semibold">
-                <Search className="h-5 w-5 mr-2" />
-                Search
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline"
+                  className="h-14 px-6 bg-white/90 border-white/20 hover:bg-white"
+                  onClick={() => setShowFilters(!showFilters)}
+                >
+                  <Filter className="h-5 w-5 mr-2" />
+                  Filters
+                  {activeFiltersCount > 0 && (
+                    <Badge className="ml-2 bg-gradient-cool text-white" variant="secondary">
+                      {activeFiltersCount}
+                    </Badge>
+                  )}
+                </Button>
+                <Button className="h-14 px-8 bg-white text-gray-800 hover:bg-gray-100 font-semibold">
+                  <Search className="h-5 w-5 mr-2" />
+                  Search
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header with Results Count */}
+        {/* Results Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8">
           <div>
-            <h2 className="text-2xl font-bold text-charcoal mb-2">
+            <h2 className="text-3xl font-bold text-charcoal dark:text-white mb-2">
               Available Properties
             </h2>
-            <p className="text-gray-600 flex items-center">
-              <span className="inline-block w-2 h-2 bg-gradient-cool rounded-full mr-2"></span>
+            <p className="text-gray-600 dark:text-gray-300 flex items-center text-lg">
+              <span className="inline-block w-3 h-3 bg-gradient-cool rounded-full mr-3"></span>
               {filteredProperties.length} properties found
             </p>
           </div>
           
-          {/* Controls */}
+          {/* Sort Controls */}
           <div className="flex items-center space-x-4 mt-4 lg:mt-0">
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden border-2 border-gray-200 hover:border-gray-300"
-            >
-              <SlidersHorizontal className="h-4 w-4 mr-2" />
-              Filters
-            </Button>
-            
-            {/* Sort dropdown */}
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px] border-2 border-gray-200">
+              <SelectTrigger className="w-[200px] border-2 border-gray-200 dark:border-gray-600 h-12">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -185,36 +210,59 @@ const Explore = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Enhanced Filters Sidebar */}
           <div className={`lg:w-80 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-            <div className="gradient-border p-6 sticky top-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gradient-cool">Advanced Filters</h2>
-                <Button variant="ghost" size="sm" onClick={clearFilters} className="text-gray-500 hover:text-gray-700">
-                  <X className="h-4 w-4 mr-1" />
-                  Clear All
-                </Button>
-              </div>
-
-              <div className="space-y-6">
-                {/* Location */}
+            <Card className="gradient-border sticky top-8 dark:bg-gray-800">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between text-gradient-cool">
+                  <span className="flex items-center">
+                    <SlidersHorizontal className="h-5 w-5 mr-2" />
+                    Advanced Filters
+                  </span>
+                  {activeFiltersCount > 0 && (
+                    <Button variant="ghost" size="sm" onClick={clearFilters} className="text-gray-500 hover:text-gray-700">
+                      <X className="h-4 w-4 mr-1" />
+                      Clear ({activeFiltersCount})
+                    </Button>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Location Search */}
                 <div>
-                  <Label htmlFor="location" className="text-sm font-medium mb-2 block text-gray-700">
+                  <Label className="text-sm font-medium mb-3 block text-gray-700 dark:text-gray-300">
                     Location
                   </Label>
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <Input
-                      id="location"
                       placeholder="Search location..."
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      className="pl-10 border-2 border-gray-200 focus:border-purple-400"
+                      className="pl-10 border-2 border-gray-200 focus:border-purple-400 dark:border-gray-600"
                     />
                   </div>
                 </div>
 
+                {/* Sharing Type */}
+                <div>
+                  <Label className="text-sm font-medium mb-3 block text-gray-700 dark:text-gray-300">
+                    Room Sharing
+                  </Label>
+                  <Select value={sharingType} onValueChange={setSharingType}>
+                    <SelectTrigger className="border-2 border-gray-200 focus:border-purple-400 dark:border-gray-600">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">Any Sharing</SelectItem>
+                      <SelectItem value="single">Single Occupancy</SelectItem>
+                      <SelectItem value="double">Double Sharing</SelectItem>
+                      <SelectItem value="triple">Triple Sharing</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {/* Price Range */}
                 <div>
-                  <Label className="text-sm font-medium mb-2 block text-gray-700">
+                  <Label className="text-sm font-medium mb-3 block text-gray-700 dark:text-gray-300">
                     Price Range (Monthly)
                   </Label>
                   <div className="px-2">
@@ -222,64 +270,56 @@ const Explore = () => {
                       value={priceRange}
                       onValueChange={setPriceRange}
                       min={3000}
-                      max={25000}
-                      step={500}
-                      className="mb-3"
+                      max={30000}
+                      step={1000}
+                      className="mb-4"
                     />
-                    <div className="flex justify-between text-sm text-gray-600 font-medium">
-                      <span className="bg-gradient-cool-light px-2 py-1 rounded">₹{priceRange[0].toLocaleString()}</span>
-                      <span className="bg-gradient-cool-light px-2 py-1 rounded">₹{priceRange[1].toLocaleString()}</span>
+                    <div className="flex justify-between">
+                      <Badge variant="outline" className="bg-gradient-cool-light text-gradient-cool font-medium">
+                        ₹{priceRange[0].toLocaleString()}
+                      </Badge>
+                      <Badge variant="outline" className="bg-gradient-cool-light text-gradient-cool font-medium">
+                        ₹{priceRange[1].toLocaleString()}
+                      </Badge>
                     </div>
                   </div>
                 </div>
 
                 {/* Gender Preference */}
                 <div>
-                  <Label className="text-sm font-medium mb-2 block text-gray-700">
+                  <Label className="text-sm font-medium mb-3 block text-gray-700 dark:text-gray-300">
                     Gender Preference
                   </Label>
-                  <Select value={genderPreference} onValueChange={setGenderPreference}>
-                    <SelectTrigger className="border-2 border-gray-200 focus:border-purple-400">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="any">Any</SelectItem>
-                      <SelectItem value="men">Men Only</SelectItem>
-                      <SelectItem value="women">Women Only</SelectItem>
-                      <SelectItem value="co-living">Co-living</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Property Type */}
-                <div>
-                  <Label className="text-sm font-medium mb-2 block text-gray-700">
-                    Property Type
-                  </Label>
-                  <Select value={propertyType} onValueChange={setPropertyType}>
-                    <SelectTrigger className="border-2 border-gray-200 focus:border-purple-400">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="any">Any Type</SelectItem>
-                      <SelectItem value="single">Single Room</SelectItem>
-                      <SelectItem value="shared">Shared Room</SelectItem>
-                      <SelectItem value="private">Private Room</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="grid grid-cols-2 gap-2">
+                    {['any', 'men', 'women', 'co-living'].map((option) => (
+                      <Button
+                        key={option}
+                        variant={genderPreference === option ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setGenderPreference(option)}
+                        className={genderPreference === option ? "bg-gradient-cool text-white" : ""}
+                      >
+                        {option === 'any' ? 'Any' : 
+                         option === 'men' ? 'Men Only' : 
+                         option === 'women' ? 'Women Only' : 'Co-living'}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Rating Filter */}
                 <div>
-                  <Label className="text-sm font-medium mb-2 block text-gray-700">
+                  <Label className="text-sm font-medium mb-3 block text-gray-700 dark:text-gray-300">
                     Minimum Rating
                   </Label>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         onClick={() => setRating(star === rating ? 0 : star)}
-                        className={`p-1 rounded ${star <= rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                        className={`p-2 rounded-lg transition-colors ${
+                          star <= rating ? 'text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20' : 'text-gray-300 hover:text-yellow-400'
+                        }`}
                       >
                         <Star className="h-5 w-5 fill-current" />
                       </button>
@@ -289,20 +329,21 @@ const Explore = () => {
 
                 {/* Amenities */}
                 <div>
-                  <Label className="text-sm font-medium mb-3 block text-gray-700">
-                    Amenities
+                  <Label className="text-sm font-medium mb-3 block text-gray-700 dark:text-gray-300">
+                    Amenities ({amenities.length} selected)
                   </Label>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                  <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
                     {availableAmenities.map((amenity) => (
-                      <div key={amenity} className="flex items-center space-x-2">
+                      <div key={amenity} className="flex items-center space-x-3">
                         <Checkbox
                           id={amenity}
                           checked={amenities.includes(amenity)}
                           onCheckedChange={(checked) => 
                             handleAmenityChange(amenity, checked === true)
                           }
+                          className="border-2"
                         />
-                        <Label htmlFor={amenity} className="text-sm">
+                        <Label htmlFor={amenity} className="text-sm cursor-pointer dark:text-gray-300">
                           {amenity}
                         </Label>
                       </div>
@@ -310,21 +351,24 @@ const Explore = () => {
                   </div>
                 </div>
 
-                {/* Virtual Tour */}
-                <div className="bg-gradient-cool-light p-3 rounded-lg">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="virtual-tour"
-                      checked={virtualTour}
-                      onCheckedChange={(checked) => setVirtualTour(checked === true)}
-                    />
-                    <Label htmlFor="virtual-tour" className="text-sm font-medium">
-                      Virtual Tour Available
-                    </Label>
-                  </div>
-                </div>
-              </div>
-            </div>
+                {/* Virtual Tour Toggle */}
+                <Card className="bg-gradient-cool-light dark:bg-gray-700 border-none">
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-3">
+                      <Checkbox
+                        id="virtual-tour"
+                        checked={virtualTour}
+                        onCheckedChange={(checked) => setVirtualTour(checked === true)}
+                        className="border-2"
+                      />
+                      <Label htmlFor="virtual-tour" className="text-sm font-medium cursor-pointer dark:text-gray-200">
+                        Virtual Tour Available
+                      </Label>
+                    </div>
+                  </CardContent>
+                </Card>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Properties Grid */}
@@ -337,25 +381,27 @@ const Explore = () => {
                     className="animate-fadeInUp"
                     style={{animationDelay: `${index * 0.1}s`}}
                   >
-                    <PropertyCard property={property} />
+                    <PropertyCard property={property} className="h-full" />
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <div className="w-24 h-24 bg-gradient-cool-light rounded-full flex items-center justify-center mx-auto mb-6 animate-float">
-                  <Search className="h-12 w-12 text-gray-400" />
-                </div>
-                <h3 className="text-2xl font-semibold text-gray-600 mb-2">
-                  No properties found
-                </h3>
-                <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                  We couldn't find any properties matching your criteria. Try adjusting your filters to see more results.
-                </p>
-                <Button onClick={clearFilters} className="bg-gradient-cool text-white hover:opacity-90">
-                  Clear All Filters
-                </Button>
-              </div>
+              <Card className="text-center py-16 dark:bg-gray-800">
+                <CardContent>
+                  <div className="w-24 h-24 bg-gradient-cool-light rounded-full flex items-center justify-center mx-auto mb-6 animate-float">
+                    <Search className="h-12 w-12 text-gray-400" />
+                  </div>
+                  <h3 className="text-2xl font-semibold text-gray-600 dark:text-gray-300 mb-2">
+                    No properties found
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                    We couldn't find any properties matching your criteria. Try adjusting your filters to see more results.
+                  </p>
+                  <Button onClick={clearFilters} className="bg-gradient-cool text-white hover:opacity-90">
+                    Clear All Filters
+                  </Button>
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>

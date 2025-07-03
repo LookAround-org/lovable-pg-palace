@@ -1,177 +1,282 @@
-
 export interface Property {
   id: string;
   title: string;
-  description: string;
   location: string;
   price: number;
+  sharingOptions: {
+    single: number;
+    double: number;
+    triple: number;
+  };
   images: string[];
-  virtualTour?: string;
   genderPreference: 'men' | 'women' | 'co-living';
+  propertyType: 'single' | 'shared' | 'private';
   amenities: string[];
-  hostId: string;
+  virtualTour?: string;
   hostName: string;
+  hostId: string;
   hostAvatar?: string;
   hostPhone?: string;
   hostEmail?: string;
-  availabilityStatus: 'available' | 'limited' | 'full';
-  houseRules: string[];
-  propertyType: 'single' | 'shared' | 'private';
   rating?: number;
   reviewCount?: number;
-  coordinates?: { lat: number; lng: number };
+  availabilityStatus: 'available' | 'limited' | 'full';
+  description: string;
+  houseRules: string[];
   createdAt: string;
 }
 
 export const mockProperties: Property[] = [
   {
     id: '1',
-    title: 'Modern Co-living Space',
-    description: 'Fully furnished co-living space with modern amenities in the heart of Koramangala. Perfect for working professionals.',
-    location: 'Koramangala, Bangalore',
-    price: 12000,
-    images: [
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2370&q=80',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2089&q=80'
-    ],
-    virtualTour: 'https://example.com/tour1',
+    title: 'Modern Co-living Space in Koramangala',
+    location: 'Koramangala 5th Block, Bangalore',
+    price: 16000,
+    sharingOptions: {
+      single: 20000,
+      double: 18000,
+      triple: 16000
+    },
+    images: ['/placeholder.svg', '/placeholder.svg', '/placeholder.svg'],
     genderPreference: 'co-living',
-    amenities: ['WiFi', 'AC', 'Laundry', 'Parking', 'Security', 'Gym'],
-    hostId: 'host1',
-    hostName: 'Rajesh Kumar',
-    hostPhone: '+91 9876543210',
-    hostEmail: 'rajesh@example.com',
-    availabilityStatus: 'available',
-    houseRules: ['No smoking', 'No parties', 'Maintain cleanliness'],
     propertyType: 'shared',
-    rating: 4.5,
-    reviewCount: 23,
-    coordinates: { lat: 12.9352, lng: 77.6245 },
+    amenities: ['WiFi', 'AC', 'Meals', 'Parking', 'Security', 'Gym', 'Laundry', 'Housekeeping'],
+    virtualTour: 'https://example-tour.com',
+    hostName: 'Rajesh Kumar',
+    hostId: 'host-1',
+    hostPhone: '+91 98765 43210',
+    hostEmail: 'rajesh@example.com',
+    rating: 4.8,
+    reviewCount: 124,
+    availabilityStatus: 'available',
+    description: 'A modern co-living space designed for working professionals. Located in the heart of Koramangala with easy access to IT parks, restaurants, and shopping centers.',
+    houseRules: ['No smoking', 'No loud music after 10 PM', 'Keep common areas clean', 'Guest policy applies'],
     createdAt: '2024-01-15'
   },
   {
     id: '2',
-    title: 'Ladies PG with Meals',
-    description: 'Safe and secure PG for women with homemade meals and excellent facilities.',
+    title: 'Premium Ladies PG with Meals',
     location: 'Indiranagar, Bangalore',
-    price: 8500,
-    images: [
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
-    ],
+    price: 14000,
+    sharingOptions: {
+      single: 18000,
+      double: 16000,
+      triple: 14000
+    },
+    images: ['/placeholder.svg', '/placeholder.svg'],
     genderPreference: 'women',
-    amenities: ['WiFi', 'Meals', 'Housekeeping', 'Security', 'Common Area'],
-    hostId: 'host2',
-    hostName: 'Priya Sharma',
-    hostPhone: '+91 9876543211',
-    hostEmail: 'priya@example.com',
-    availabilityStatus: 'limited',
-    houseRules: ['No male visitors after 8 PM', 'Inform before going out late'],
     propertyType: 'shared',
-    rating: 4.2,
-    reviewCount: 18,
-    coordinates: { lat: 12.9716, lng: 77.6412 },
+    amenities: ['WiFi', 'AC', 'Meals', 'Security', 'Laundry', 'Common Area', 'Power Backup'],
+    hostName: 'Priya Sharma',
+    hostId: 'host-2',
+    hostPhone: '+91 87654 32109',
+    hostEmail: 'priya@example.com',
+    rating: 4.6,
+    reviewCount: 89,
+    availabilityStatus: 'limited',
+    description: 'Safe and secure accommodation for working women with homely meals and all modern amenities.',
+    houseRules: ['No male visitors', 'Meal timings to be followed', 'Curfew at 11 PM', 'No pets allowed'],
     createdAt: '2024-01-10'
   },
   {
     id: '3',
-    title: 'Premium Boys Hostel',
-    description: 'Luxurious hostel for men with all modern amenities and excellent connectivity.',
+    title: 'Executive Boys Hostel',
     location: 'Whitefield, Bangalore',
     price: 15000,
-    images: [
-      'https://images.unsplash.com/photo-1555854877-bab0e5fa5e17?ixlib=rb-4.0.3&auto=format&fit=crop&w=2069&q=80',
-      'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
-    ],
-    virtualTour: 'https://example.com/tour3',
+    sharingOptions: {
+      single: 22000,
+      double: 18000,
+      triple: 15000
+    },
+    images: ['/placeholder.svg'],
     genderPreference: 'men',
-    amenities: ['WiFi', 'AC', 'Gym', 'Parking', 'Pool', 'Gaming Room'],
-    hostId: 'host3',
-    hostName: 'Amit Patel',
-    hostPhone: '+91 9876543212',
-    hostEmail: 'amit@example.com',
-    availabilityStatus: 'available',
-    houseRules: ['No smoking inside', 'Maintain gym equipment'],
-    propertyType: 'private',
-    rating: 4.7,
-    reviewCount: 31,
-    coordinates: { lat: 12.9698, lng: 77.7500 },
-    createdAt: '2024-01-20'
-  },
-  {
-    id: '4',
-    title: 'Shared Accommodation',
-    description: 'Affordable shared rooms perfect for students and young professionals.',
-    location: 'HSR Layout, Bangalore',
-    price: 7000,
-    images: [
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2089&q=80',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2370&q=80'
-    ],
-    genderPreference: 'co-living',
-    amenities: ['WiFi', 'Water Supply', 'Power Backup', 'Common Kitchen'],
-    hostId: 'host4',
-    hostName: 'Suresh Reddy',
-    hostPhone: '+91 9876543213',
-    hostEmail: 'suresh@example.com',
-    availabilityStatus: 'available',
-    houseRules: ['Clean after cooking', 'Respect others privacy'],
     propertyType: 'shared',
-    rating: 4.0,
-    reviewCount: 12,
-    coordinates: { lat: 12.9082, lng: 77.6476 },
+    amenities: ['WiFi', 'AC', 'Parking', 'Security', 'Gym', 'Study Room', 'Refrigerator'],
+    virtualTour: 'https://example-tour-2.com',
+    hostName: 'Amit Patel',
+    hostId: 'host-3',
+    hostPhone: '+91 76543 21098',
+    hostEmail: 'amit@example.com',
+    rating: 4.2,
+    reviewCount: 67,
+    availabilityStatus: 'available',
+    description: 'Modern hostel facility for working professionals in the IT hub of Whitefield.',
+    houseRules: ['No smoking in rooms', 'Gym timings: 6 AM - 10 PM', 'Visitors allowed till 9 PM', 'Keep noise levels low'],
     createdAt: '2024-01-08'
   },
   {
-    id: '5',
-    title: 'Executive PG',
-    description: 'Premium accommodation for executives with luxury amenities and prime location.',
-    location: 'MG Road, Bangalore',
-    price: 18000,
-    images: [
-      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
-    ],
-    virtualTour: 'https://example.com/tour5',
+    id: '4',
+    title: 'Cozy Single Room PG',
+    location: 'BTM Layout, Bangalore',
+    price: 12000,
+    sharingOptions: {
+      single: 12000,
+      double: 10000,
+      triple: 8000
+    },
+    images: ['/placeholder.svg'],
     genderPreference: 'co-living',
-    amenities: ['WiFi', 'AC', 'Meals', 'Housekeeping', 'Concierge', 'Business Center'],
-    hostId: 'host5',
-    hostName: 'Deepika Singh',
-    hostPhone: '+91 9876543214',
-    hostEmail: 'deepika@example.com',
-    availabilityStatus: 'limited',
-    houseRules: ['Professional environment', 'No loud music after 10 PM'],
-    propertyType: 'private',
-    rating: 4.8,
-    reviewCount: 45,
-    coordinates: { lat: 12.9716, lng: 77.5946 },
-    createdAt: '2024-01-25'
+    propertyType: 'single',
+    amenities: ['WiFi', 'AC', 'Meals', 'Security', 'Laundry'],
+    hostName: 'Sneha Reddy',
+    hostId: 'host-4',
+    hostPhone: '+91 99887 76655',
+    hostEmail: 'sneha@example.com',
+    rating: 4.5,
+    reviewCount: 92,
+    availabilityStatus: 'full',
+    description: 'A cozy and affordable single room PG in the bustling area of BTM Layout.',
+    houseRules: ['No outside food allowed', 'Maintain silence during study hours', 'Report any issues to management', 'Lock doors when leaving'],
+    createdAt: '2024-01-05'
+  },
+  {
+    id: '5',
+    title: 'Luxury PG for Gents',
+    location: 'HSR Layout, Bangalore',
+    price: 18000,
+    sharingOptions: {
+      single: 25000,
+      double: 20000,
+      triple: 18000
+    },
+    images: ['/placeholder.svg'],
+    genderPreference: 'men',
+    propertyType: 'shared',
+    amenities: ['WiFi', 'AC', 'Meals', 'Parking', 'Security', 'Gym', 'Laundry', 'Housekeeping', 'Power Backup'],
+    hostName: 'Mahesh Kumar',
+    hostId: 'host-5',
+    hostPhone: '+91 88776 65544',
+    hostEmail: 'mahesh@example.com',
+    rating: 4.9,
+    reviewCount: 155,
+    availabilityStatus: 'available',
+    description: 'Experience luxury living in this premium PG designed exclusively for men in HSR Layout.',
+    houseRules: ['Strictly no alcohol', 'No pets', 'Respect fellow residents', 'Adhere to all PG policies'],
+    createdAt: '2024-01-01'
   },
   {
     id: '6',
-    title: 'Budget Friendly PG',
-    description: 'Clean and safe accommodation at affordable prices with basic amenities.',
+    title: 'Comfortable PG for Working Women',
     location: 'Electronic City, Bangalore',
-    price: 6000,
-    images: [
-      'https://images.unsplash.com/photo-1555854877-bab0e5fa5e17?ixlib=rb-4.0.3&auto=format&fit=crop&w=2069&q=80',
-      'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
-    ],
-    genderPreference: 'men',
-    amenities: ['WiFi', 'Water Supply', 'Security', 'Common Kitchen'],
-    hostId: 'host6',
-    hostName: 'Ravi Kumar',
-    hostPhone: '+91 9876543215',
-    hostEmail: 'ravi@example.com',
-    availabilityStatus: 'available',
-    houseRules: ['No drinking', 'Be back by midnight'],
+    price: 13000,
+    sharingOptions: {
+      single: 16000,
+      double: 13000,
+      triple: 11000
+    },
+    images: ['/placeholder.svg'],
+    genderPreference: 'women',
     propertyType: 'shared',
-    rating: 3.8,
-    reviewCount: 8,
-    coordinates: { lat: 12.8456, lng: 77.6603 },
-    createdAt: '2024-01-05'
+    amenities: ['WiFi', 'AC', 'Meals', 'Security', 'Laundry', 'Common Area'],
+    hostName: 'Divya Gowda',
+    hostId: 'host-6',
+    hostPhone: '+91 77665 54433',
+    hostEmail: 'divya@example.com',
+    rating: 4.4,
+    reviewCount: 78,
+    availabilityStatus: 'limited',
+    description: 'A comfortable and secure PG option for working women in the IT hub of Electronic City.',
+    houseRules: ['No smoking', 'Maintain cleanliness', 'Inform management of late arrivals', 'Follow all safety guidelines'],
+    createdAt: '2023-12-28'
+  },
+  {
+    id: '7',
+    title: 'Affordable Co-living Space',
+    location: 'Marathahalli, Bangalore',
+    price: 11000,
+    sharingOptions: {
+      single: 14000,
+      double: 11000,
+      triple: 9000
+    },
+    images: ['/placeholder.svg'],
+    genderPreference: 'co-living',
+    propertyType: 'shared',
+    amenities: ['WiFi', 'AC', 'Meals', 'Security', 'Laundry', 'Housekeeping'],
+    hostName: 'Ravi Kumar',
+    hostId: 'host-7',
+    hostPhone: '+91 66554 43322',
+    hostEmail: 'ravi@example.com',
+    rating: 4.3,
+    reviewCount: 65,
+    availabilityStatus: 'available',
+    description: 'An affordable and well-maintained co-living space in the heart of Marathahalli.',
+    houseRules: ['No illegal activities', 'Respect privacy of others', 'Conserve water and electricity', 'Adhere to all community rules'],
+    createdAt: '2023-12-25'
+  },
+  {
+    id: '8',
+    title: 'Spacious Single Room for Rent',
+    location: 'JP Nagar, Bangalore',
+    price: 15000,
+    sharingOptions: {
+      single: 15000,
+      double: 13000,
+      triple: 11000
+    },
+    images: ['/placeholder.svg'],
+    genderPreference: 'any',
+    propertyType: 'single',
+    amenities: ['WiFi', 'AC', 'Parking', 'Security', 'Balcony'],
+    hostName: 'Shalini Gupta',
+    hostId: 'host-8',
+    hostPhone: '+91 55443 32211',
+    hostEmail: 'shalini@example.com',
+    rating: 4.7,
+    reviewCount: 110,
+    availabilityStatus: 'available',
+    description: 'A spacious and well-lit single room available for rent in the prime location of JP Nagar.',
+    houseRules: ['No loud parties', 'Keep the room clean', 'Inform management of any damages', 'Follow all building rules'],
+    createdAt: '2023-12-20'
+  },
+  {
+    id: '9',
+    title: 'Deluxe PG Accommodation',
+    location: 'Sarjapur Road, Bangalore',
+    price: 17000,
+    sharingOptions: {
+      single: 23000,
+      double: 17000,
+      triple: 15000
+    },
+    images: ['/placeholder.svg'],
+    genderPreference: 'co-living',
+    propertyType: 'shared',
+    amenities: ['WiFi', 'AC', 'Meals', 'Parking', 'Security', 'Gym', 'Laundry', 'Housekeeping', 'Refrigerator'],
+    hostName: 'Vikram Singh',
+    hostId: 'host-9',
+    hostPhone: '+91 44332 21100',
+    hostEmail: 'vikram@example.com',
+    rating: 4.6,
+    reviewCount: 102,
+    availabilityStatus: 'limited',
+    description: 'Experience deluxe living in this premium PG accommodation located on Sarjapur Road.',
+    houseRules: ['No smoking indoors', 'Maintain decorum', 'Respect fellow residents', 'Adhere to all PG policies'],
+    createdAt: '2023-12-15'
+  },
+  {
+    id: '10',
+    title: 'Budget-Friendly PG for Students',
+    location: 'RR Nagar, Bangalore',
+    price: 9000,
+    sharingOptions: {
+      single: 11000,
+      double: 9000,
+      triple: 7000
+    },
+    images: ['/placeholder.svg'],
+    genderPreference: 'any',
+    propertyType: 'shared',
+    amenities: ['WiFi', 'Meals', 'Security', 'Study Room'],
+    hostName: 'Deepika Sharma',
+    hostId: 'host-10',
+    hostPhone: '+91 33221 10099',
+    hostEmail: 'deepika@example.com',
+    rating: 4.1,
+    reviewCount: 55,
+    availabilityStatus: 'available',
+    description: 'A budget-friendly PG option for students located in the vicinity of RR Nagar.',
+    houseRules: ['No alcohol', 'Maintain silence during study hours', 'Respect fellow residents', 'Follow all hostel rules'],
+    createdAt: '2023-12-10'
   }
 ];
-
-export const featuredProperties = mockProperties.slice(0, 3);
-export const trendingProperties = mockProperties.slice(2, 5);
