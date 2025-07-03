@@ -17,6 +17,12 @@ import Profile from "./pages/Profile";
 import Wishlist from "./pages/Wishlist";
 import Partner from "./pages/Partner";
 import About from "./pages/About";
+import Blog from "./pages/Blog";
+import Careers from "./pages/Careers";
+import HelpCenter from "./pages/HelpCenter";
+import ContactUs from "./pages/ContactUs";
+import SafetyInformation from "./pages/SafetyInformation";
+import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +48,12 @@ const App = () => (
                   <Route path="/wishlist" element={<Wishlist />} />
                   <Route path="/partner" element={<Partner />} />
                   <Route path="/about" element={<About />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/careers" element={<Careers />} />
+                  <Route path="/help" element={<HelpCenter />} />
+                  <Route path="/contact" element={<ContactUs />} />
+                  <Route path="/safety" element={<SafetyInformation />} />
+                  <Route path="/faq" element={<FAQ />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
