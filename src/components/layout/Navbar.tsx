@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -166,65 +167,85 @@ export const Navbar = () => {
           </form>
         </div>
 
-        {/* Mobile Navigation Menu */}
+        {/* Enhanced Mobile Navigation Menu */}
         {isMenuOpen && (
-          <div className="md:hidden border-t dark:border-gray-700 py-4 space-y-2">
-            <Link
-              to="/explore"
-              onClick={() => setIsMenuOpen(false)}
-              className="block px-3 py-2 text-charcoal dark:text-white hover:text-primary dark:hover:text-primary transition-colors"
-            >
-              Explore
-            </Link>
-            
-            {user ? (
-              <>
-                <Link
-                  to="/wishlist"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center px-3 py-2 text-charcoal dark:text-white hover:text-primary dark:hover:text-primary transition-colors"
-                >
-                  <Heart className="w-4 h-4 mr-2" />
-                  Wishlist
-                  {wishlist.length > 0 && (
-                    <Badge className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                      {wishlist.length}
-                    </Badge>
-                  )}
-                </Link>
-                <Link
-                  to="/profile"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center px-3 py-2 text-charcoal dark:text-white hover:text-primary dark:hover:text-primary transition-colors"
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  Profile
-                </Link>
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setIsMenuOpen(false);
-                  }}
-                  className="flex items-center w-full px-3 py-2 text-charcoal dark:text-white hover:text-primary dark:hover:text-primary transition-colors"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Log out
-                </button>
-              </>
-            ) : (
-              <div className="px-3 py-2 space-y-2">
-                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start text-charcoal dark:text-white hover:text-primary dark:hover:text-primary">
-                    Log in
-                  </Button>
-                </Link>
-                <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
-                  <Button className="w-full bg-gradient-cool hover:opacity-90 text-white">
-                    Sign up
-                  </Button>
-                </Link>
-              </div>
-            )}
+          <div className="md:hidden absolute left-0 top-full w-full bg-white dark:bg-gray-900 border-t dark:border-gray-700 shadow-lg z-40 animate-fadeInUp">
+            <div className="px-4 py-6 space-y-3">
+              <Link
+                to="/explore"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors font-medium"
+              >
+                <Search className="w-5 h-5 mr-3 text-primary" />
+                Explore Properties
+              </Link>
+              
+              {user ? (
+                <>
+                  <Link
+                    to="/wishlist"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center justify-between px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors font-medium"
+                  >
+                    <div className="flex items-center">
+                      <Heart className="w-5 h-5 mr-3 text-primary" />
+                      My Wishlist
+                    </div>
+                    {wishlist.length > 0 && (
+                      <Badge className="bg-gradient-cool text-white">
+                        {wishlist.length}
+                      </Badge>
+                    )}
+                  </Link>
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors font-medium"
+                  >
+                    <User className="w-5 h-5 mr-3 text-primary" />
+                    My Profile
+                  </Link>
+                  <div className="border-t dark:border-gray-700 pt-3">
+                    <div className="flex items-center px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-lg mb-3">
+                      <Avatar className="h-10 w-10 mr-3">
+                        <AvatarImage src={user.avatar} alt={user.name} />
+                        <AvatarFallback className="bg-gradient-cool text-white">
+                          {user.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold text-gray-900 dark:text-white">{user.name}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex items-center w-full px-4 py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium"
+                    >
+                      <LogOut className="w-5 h-5 mr-3" />
+                      Log out
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-3 pt-3 border-t dark:border-gray-700">
+                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="outline" className="w-full justify-start h-12 text-base font-medium dark:border-gray-600 dark:text-white dark:hover:bg-gray-700">
+                      <User className="w-5 h-5 mr-3" />
+                      Log in
+                    </Button>
+                  </Link>
+                  <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
+                    <Button className="w-full bg-gradient-cool hover:opacity-90 text-white h-12 text-base font-medium">
+                      Get Started
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
