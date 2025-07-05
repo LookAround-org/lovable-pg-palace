@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 export const Footer = () => {
   return (
-    <footer className="bg-charcoal text-white">
+    <footer className="bg-charcoal dark:bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Section */}
@@ -85,8 +85,21 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Legal Links */}
+          {/* Host & Legal Links */}
           <div>
+            <h3 className="font-semibold text-lg mb-4">Host</h3>
+            <ul className="space-y-2 mb-6">
+              <li>
+                <Link to="/host/login" className="text-gray-300 hover:text-white transition-colors">
+                  Host Login
+                </Link>
+              </li>
+              <li>
+                <Link to="/partner" className="text-gray-300 hover:text-white transition-colors">
+                  Become a Host
+                </Link>
+              </li>
+            </ul>
             <h3 className="font-semibold text-lg mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
@@ -97,16 +110,6 @@ export const Footer = () => {
               <li>
                 <Link to="/terms" className="text-gray-300 hover:text-white transition-colors">
                   Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link to="/disclaimer" className="text-gray-300 hover:text-white transition-colors">
-                  Disclaimer
-                </Link>
-              </li>
-              <li>
-                <Link to="/cookie-policy" className="text-gray-300 hover:text-white transition-colors">
-                  Cookie Policy
                 </Link>
               </li>
             </ul>
