@@ -4,12 +4,11 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Home, Users, Bell, Settings, Check, X } from 'lucide-react';
+import { Home, Users, Bell, Settings, Check, X, Plus, Minus } from 'lucide-react';
 
 interface UserQuery {
   id: string;
@@ -21,6 +20,22 @@ interface UserQuery {
   message: string;
   timestamp: string;
   status: 'pending' | 'approved' | 'rejected';
+}
+
+interface PropertyAvailability {
+  id: string;
+  title: string;
+  type: 'co-living' | 'men' | 'women';
+  availability: {
+    single: boolean;
+    double: boolean;
+    triple: boolean;
+  };
+  capacity: {
+    single: number;
+    double: number;
+    triple: number;
+  };
 }
 
 const HostDashboard = () => {
@@ -50,7 +65,7 @@ const HostDashboard = () => {
     }
   ]);
 
-  const [properties, setProperties] = useState([
+  const [properties, setProperties] = useState<PropertyAvailability[]>([
     {
       id: '1',
       title: 'Modern Co-living Space in Koramangala',
@@ -59,6 +74,11 @@ const HostDashboard = () => {
         single: true,
         double: false,
         triple: true
+      },
+      capacity: {
+        single: 5,
+        double: 3,
+        triple: 2
       }
     },
     {
@@ -69,6 +89,11 @@ const HostDashboard = () => {
         single: true,
         double: true,
         triple: false
+      },
+      capacity: {
+        single: 8,
+        double: 4,
+        triple: 0
       }
     }
   ]);
@@ -86,7 +111,7 @@ const HostDashboard = () => {
     });
   };
 
-  const handleAvailabilityChange = (propertyId: string, sharingType: keyof typeof properties[0]['availability'], value: boolean) => {
+  const handleAvailabilityChange = (propertyId: string, sharingType: keyof PropertyAvailability['availability'], value: boolean) => {
     setProperties(prev => prev.map(property => 
       property.id === propertyId 
         ? { 
@@ -105,6 +130,25 @@ const HostDashboard = () => {
     });
   };
 
+  const handleCapacityChange = (propertyId: string, sharingType: keyof PropertyAvailability['capacity'], change: number) => {
+    setProperties(prev => prev.map(property => 
+      property.id === propertyId 
+        ? { 
+            ...property, 
+            capacity: { 
+              ...property.capacity, 
+              [sharingType]: Math.max(0, property.capacity[sharingType] + change)
+            } 
+          }
+        : property
+    ));
+    
+    toast({
+      title: "Capacity Updated",
+      description: `${sharingType} sharing capacity has been updated.`,
+    });
+  };
+
   const stats = {
     totalProperties: 5,
     totalQueries: queries.length,
@@ -114,7 +158,7 @@ const HostDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-light-gray dark:bg-gray-900 py-8">
+    <div className="min-h-screen bg-light-gray dark:bg-gray-900 py-8 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -132,7 +176,7 @@ const HostDashboard = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <Card className="gradient-border">
+          <Card className="gradient-border dark:bg-gray-800">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Properties</CardTitle>
             </CardHeader>
@@ -141,7 +185,7 @@ const HostDashboard = () => {
             </CardContent>
           </Card>
           
-          <Card className="gradient-border">
+          <Card className="gradient-border dark:bg-gray-800">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Queries</CardTitle>
             </CardHeader>
@@ -150,7 +194,7 @@ const HostDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="gradient-border">
+          <Card className="gradient-border dark:bg-gray-800">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Queries</CardTitle>
             </CardHeader>
@@ -159,7 +203,7 @@ const HostDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="gradient-border">
+          <Card className="gradient-border dark:bg-gray-800">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Occupancy Rate</CardTitle>
             </CardHeader>
@@ -168,7 +212,7 @@ const HostDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="gradient-border">
+          <Card className="gradient-border dark:bg-gray-800">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Revenue</CardTitle>
             </CardHeader>
@@ -179,27 +223,27 @@ const HostDashboard = () => {
         </div>
 
         <Tabs defaultValue="queries" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="queries">User Queries</TabsTrigger>
-            <TabsTrigger value="availability">Manage Availability</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 dark:bg-gray-800">
+            <TabsTrigger value="queries" className="dark:data-[state=active]:bg-gray-700 dark:text-white">User Queries</TabsTrigger>
+            <TabsTrigger value="availability" className="dark:data-[state=active]:bg-gray-700 dark:text-white">Manage Availability</TabsTrigger>
+            <TabsTrigger value="analytics" className="dark:data-[state=active]:bg-gray-700 dark:text-white">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="queries" className="space-y-6">
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 dark:text-white">
                   <Bell className="w-5 h-5" />
                   User Queries & Requests
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="dark:text-gray-400">
                   Manage incoming queries from potential guests
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {queries.map((query) => (
-                    <div key={query.id} className="border dark:border-gray-700 rounded-lg p-4 space-y-3">
+                    <div key={query.id} className="border dark:border-gray-700 rounded-lg p-4 space-y-3 dark:bg-gray-900">
                       <div className="flex justify-between items-start">
                         <div>
                           <h4 className="font-semibold text-charcoal dark:text-white">{query.userName}</h4>
@@ -250,24 +294,25 @@ const HostDashboard = () => {
           </TabsContent>
 
           <TabsContent value="availability" className="space-y-6">
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 dark:text-white">
                   <Settings className="w-5 h-5" />
                   Property Availability Management
                 </CardTitle>
-                <CardDescription>
-                  Update room availability for your properties
+                <CardDescription className="dark:text-gray-400">
+                  Update room availability and capacity for your properties
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
                   {properties.map((property) => (
-                    <div key={property.id} className="border dark:border-gray-700 rounded-lg p-4">
+                    <div key={property.id} className="border dark:border-gray-700 rounded-lg p-4 dark:bg-gray-900">
                       <h4 className="font-semibold text-charcoal dark:text-white mb-4">{property.title}</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">Single Sharing</Label>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* Single Sharing */}
+                        <div className="space-y-4">
+                          <Label className="text-sm font-medium dark:text-white">Single Sharing</Label>
                           <div className="flex items-center space-x-2">
                             <Switch
                               checked={property.availability.single}
@@ -277,10 +322,32 @@ const HostDashboard = () => {
                               {property.availability.single ? 'Available' : 'Not Available'}
                             </span>
                           </div>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleCapacityChange(property.id, 'single', -1)}
+                              disabled={property.capacity.single === 0}
+                              className="dark:border-gray-600 dark:text-white dark:hover:bg-gray-700"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            <span className="min-w-[3rem] text-center font-medium dark:text-white">{property.capacity.single}</span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleCapacityChange(property.id, 'single', 1)}
+                              className="dark:border-gray-600 dark:text-white dark:hover:bg-gray-700"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Available rooms</p>
                         </div>
                         
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">Double Sharing</Label>
+                        {/* Double Sharing */}
+                        <div className="space-y-4">
+                          <Label className="text-sm font-medium dark:text-white">Double Sharing</Label>
                           <div className="flex items-center space-x-2">
                             <Switch
                               checked={property.availability.double}
@@ -290,10 +357,32 @@ const HostDashboard = () => {
                               {property.availability.double ? 'Available' : 'Not Available'}
                             </span>
                           </div>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleCapacityChange(property.id, 'double', -1)}
+                              disabled={property.capacity.double === 0}
+                              className="dark:border-gray-600 dark:text-white dark:hover:bg-gray-700"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            <span className="min-w-[3rem] text-center font-medium dark:text-white">{property.capacity.double}</span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleCapacityChange(property.id, 'double', 1)}
+                              className="dark:border-gray-600 dark:text-white dark:hover:bg-gray-700"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Available rooms</p>
                         </div>
                         
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">Triple Sharing</Label>
+                        {/* Triple Sharing */}
+                        <div className="space-y-4">
+                          <Label className="text-sm font-medium dark:text-white">Triple Sharing</Label>
                           <div className="flex items-center space-x-2">
                             <Switch
                               checked={property.availability.triple}
@@ -303,6 +392,27 @@ const HostDashboard = () => {
                               {property.availability.triple ? 'Available' : 'Not Available'}
                             </span>
                           </div>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleCapacityChange(property.id, 'triple', -1)}
+                              disabled={property.capacity.triple === 0}
+                              className="dark:border-gray-600 dark:text-white dark:hover:bg-gray-700"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            <span className="min-w-[3rem] text-center font-medium dark:text-white">{property.capacity.triple}</span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleCapacityChange(property.id, 'triple', 1)}
+                              className="dark:border-gray-600 dark:text-white dark:hover:bg-gray-700"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Available rooms</p>
                         </div>
                       </div>
                     </div>
@@ -314,49 +424,49 @@ const HostDashboard = () => {
 
           <TabsContent value="analytics" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle>Query Analytics</CardTitle>
+                  <CardTitle className="dark:text-white">Query Analytics</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between">
-                      <span>Total Queries This Month</span>
-                      <span className="font-semibold">47</span>
+                      <span className="dark:text-gray-300">Total Queries This Month</span>
+                      <span className="font-semibold dark:text-white">47</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Approved Queries</span>
+                      <span className="dark:text-gray-300">Approved Queries</span>
                       <span className="font-semibold text-green-500">32</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Pending Queries</span>
+                      <span className="dark:text-gray-300">Pending Queries</span>
                       <span className="font-semibold text-orange-500">8</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Rejected Queries</span>
+                      <span className="dark:text-gray-300">Rejected Queries</span>
                       <span className="font-semibold text-red-500">7</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle>Popular Sharing Types</CardTitle>
+                  <CardTitle className="dark:text-white">Popular Sharing Types</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between">
-                      <span>Single Sharing</span>
-                      <span className="font-semibold">45%</span>
+                      <span className="dark:text-gray-300">Single Sharing</span>
+                      <span className="font-semibold dark:text-white">45%</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Double Sharing</span>
-                      <span className="font-semibold">35%</span>
+                      <span className="dark:text-gray-300">Double Sharing</span>
+                      <span className="font-semibold dark:text-white">35%</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Triple Sharing</span>
-                      <span className="font-semibold">20%</span>
+                      <span className="dark:text-gray-300">Triple Sharing</span>
+                      <span className="font-semibold dark:text-white">20%</span>
                     </div>
                   </div>
                 </CardContent>

@@ -62,6 +62,7 @@ const App = () => (
                     <Route path="/host/login" element={<HostLogin />} />
                     <Route path="/host/dashboard" element={<HostDashboard />} />
                     <Route path="/host/properties" element={<HostProperties />} />
+                    <Route path="/host/properties/:hostId" element={<HostProperties />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>

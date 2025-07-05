@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { MapPin, Heart, User, Star, Phone, Mail, ArrowLeft, Eye } from 'lucide-react';
+import { MapPin, Heart, User, Star, Phone, Mail, ArrowLeft, Eye, Calendar, Users, Home } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { mockProperties } from '@/data/mockData';
@@ -23,9 +23,9 @@ const PropertyDetails = () => {
   
   if (!property) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-light-gray dark:bg-gray-900">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Property not found</h1>
+          <h1 className="text-2xl font-bold mb-4 dark:text-white">Property not found</h1>
           <Button onClick={() => navigate('/explore')}>
             Back to Explore
           </Button>
@@ -81,10 +81,10 @@ const PropertyDetails = () => {
 
   const getGenderBadgeColor = (gender: string) => {
     switch (gender) {
-      case 'men': return 'bg-blue-100 text-blue-800';
-      case 'women': return 'bg-pink-100 text-pink-800';
-      case 'co-living': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'men': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'women': return 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200';
+      case 'co-living': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   };
 
@@ -98,13 +98,13 @@ const PropertyDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-light-gray">
+    <div className="min-h-screen bg-light-gray dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back button */}
         <Button 
           variant="ghost" 
           onClick={() => navigate(-1)}
-          className="mb-6"
+          className="mb-6 dark:text-white dark:hover:bg-gray-800"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
@@ -114,7 +114,7 @@ const PropertyDetails = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Image Gallery */}
-            <Card className="overflow-hidden">
+            <Card className="overflow-hidden dark:bg-gray-800 dark:border-gray-700">
               <div className="relative aspect-[16/10]">
                 <img
                   src={property.images[currentImageIndex] || '/placeholder.svg'}
@@ -134,12 +134,12 @@ const PropertyDetails = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`absolute top-4 right-4 p-2 h-10 w-10 bg-white/80 hover:bg-white wishlist-heart ${
+                  className={`absolute top-4 right-4 p-2 h-10 w-10 bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800 wishlist-heart ${
                     isInWishlist ? 'active' : ''
                   }`}
                   onClick={handleWishlistToggle}
                 >
-                  <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-current text-red-500' : ''}`} />
+                  <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-current text-red-500' : 'dark:text-white'}`} />
                 </Button>
                 
                 {/* Image navigation */}
@@ -148,7 +148,7 @@ const PropertyDetails = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800 dark:text-white"
                       onClick={() => setCurrentImageIndex(
                         currentImageIndex === 0 ? property.images.length - 1 : currentImageIndex - 1
                       )}
@@ -158,7 +158,7 @@ const PropertyDetails = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800 dark:text-white"
                       onClick={() => setCurrentImageIndex(
                         currentImageIndex === property.images.length - 1 ? 0 : currentImageIndex + 1
                       )}
@@ -184,15 +184,15 @@ const PropertyDetails = () => {
             </Card>
 
             {/* Property Info */}
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="p-6">
                 <div className="space-y-4">
                   {/* Title and Location */}
                   <div>
-                    <h1 className="text-3xl font-bold text-charcoal mb-2">
+                    <h1 className="text-3xl font-bold text-charcoal dark:text-white mb-2">
                       {property.title}
                     </h1>
-                    <div className="flex items-center text-gray-600">
+                    <div className="flex items-center text-gray-600 dark:text-gray-400">
                       <MapPin className="h-4 w-4 mr-1" />
                       <span>{property.location}</span>
                     </div>
@@ -201,10 +201,10 @@ const PropertyDetails = () => {
                   {/* Price and Status */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-3xl font-bold text-primary">
+                      <span className="text-3xl font-bold text-primary dark:text-blue-400">
                         ₹{property.price.toLocaleString()}
                       </span>
-                      <span className="text-gray-600 ml-2">/month</span>
+                      <span className="text-gray-600 dark:text-gray-400 ml-2">/month</span>
                     </div>
                     <Badge className={getStatusBadgeColor(property.availabilityStatus)}>
                       {property.availabilityStatus === 'available' ? 'Available' :
@@ -218,11 +218,11 @@ const PropertyDetails = () => {
                       {property.genderPreference === 'co-living' ? 'Co-living' : 
                        property.genderPreference === 'men' ? 'Men Only' : 'Women Only'}
                     </Badge>
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="dark:border-gray-600 dark:text-gray-300">
                       {property.propertyType.charAt(0).toUpperCase() + property.propertyType.slice(1)} Room
                     </Badge>
                     {property.virtualTour && (
-                      <Badge variant="outline">Virtual Tour</Badge>
+                      <Badge variant="outline" className="dark:border-gray-600 dark:text-gray-300">Virtual Tour</Badge>
                     )}
                   </div>
 
@@ -231,18 +231,37 @@ const PropertyDetails = () => {
                     <div className="flex items-center space-x-2">
                       <div className="flex items-center">
                         <Star className="h-5 w-5 text-yellow-400 fill-current" />
-                        <span className="ml-1 font-semibold">{property.rating}</span>
+                        <span className="ml-1 font-semibold dark:text-white">{property.rating}</span>
                       </div>
                       {property.reviewCount && (
-                        <span className="text-gray-600">({property.reviewCount} reviews)</span>
+                        <span className="text-gray-600 dark:text-gray-400">({property.reviewCount} reviews)</span>
                       )}
                     </div>
                   )}
 
+                  {/* Quick Info Cards */}
+                  <div className="grid grid-cols-3 gap-4 mt-6">
+                    <div className="text-center p-3 bg-gradient-cool-light dark:bg-gray-700 rounded-lg">
+                      <Users className="h-6 w-6 mx-auto mb-2 text-gradient-cool dark:text-blue-400" />
+                      <p className="text-sm font-medium dark:text-white">Sharing Type</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 capitalize">{property.propertyType}</p>
+                    </div>
+                    <div className="text-center p-3 bg-gradient-cool-light dark:bg-gray-700 rounded-lg">
+                      <Home className="h-6 w-6 mx-auto mb-2 text-gradient-cool dark:text-blue-400" />
+                      <p className="text-sm font-medium dark:text-white">Property Type</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">PG/Hostel</p>
+                    </div>
+                    <div className="text-center p-3 bg-gradient-cool-light dark:bg-gray-700 rounded-lg">
+                      <Calendar className="h-6 w-6 mx-auto mb-2 text-gradient-cool dark:text-blue-400" />
+                      <p className="text-sm font-medium dark:text-white">Move-in</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Immediate</p>
+                    </div>
+                  </div>
+
                   {/* Description */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">About this place</h3>
-                    <p className="text-gray-600 leading-relaxed">
+                    <h3 className="text-lg font-semibold mb-2 dark:text-white">About this place</h3>
+                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
                       {property.description}
                     </p>
                   </div>
@@ -251,14 +270,14 @@ const PropertyDetails = () => {
             </Card>
 
             {/* Amenities */}
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Amenities</h3>
+                <h3 className="text-lg font-semibold mb-4 dark:text-white">Amenities</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {property.amenities.map((amenity, index) => (
                     <div key={index} className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-gray-700">{amenity}</span>
+                      <div className="w-2 h-2 bg-primary dark:bg-blue-400 rounded-full"></div>
+                      <span className="text-gray-700 dark:text-gray-300">{amenity}</span>
                     </div>
                   ))}
                 </div>
@@ -266,14 +285,14 @@ const PropertyDetails = () => {
             </Card>
 
             {/* House Rules */}
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">House Rules</h3>
+                <h3 className="text-lg font-semibold mb-4 dark:text-white">House Rules</h3>
                 <div className="space-y-2">
                   {property.houseRules.map((rule, index) => (
                     <div key={index} className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-accent rounded-full"></div>
-                      <span className="text-gray-700">{rule}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{rule}</span>
                     </div>
                   ))}
                 </div>
@@ -284,10 +303,10 @@ const PropertyDetails = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Host Profile */}
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="p-6">
                 <div className="text-center space-y-4">
-                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto">
+                  <div className="w-16 h-16 bg-gradient-cool rounded-full flex items-center justify-center mx-auto">
                     {property.hostAvatar ? (
                       <img 
                         src={property.hostAvatar} 
@@ -300,15 +319,15 @@ const PropertyDetails = () => {
                   </div>
                   
                   <div>
-                    <h3 className="font-semibold text-lg">{property.hostName}</h3>
-                    <p className="text-gray-600">Property Host</p>
+                    <h3 className="font-semibold text-lg dark:text-white">{property.hostName}</h3>
+                    <p className="text-gray-600 dark:text-gray-400">Property Host</p>
                   </div>
 
                   {property.rating && (
                     <div className="flex items-center justify-center space-x-1">
                       <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="font-medium">{property.rating}</span>
-                      <span className="text-gray-600">
+                      <span className="font-medium dark:text-white">{property.rating}</span>
+                      <span className="text-gray-600 dark:text-gray-400">
                         ({property.reviewCount} reviews)
                       </span>
                     </div>
@@ -318,7 +337,7 @@ const PropertyDetails = () => {
                     {!showHostInfo ? (
                       <Button 
                         onClick={handleRevealHostInfo}
-                        className="w-full"
+                        className="w-full bg-gradient-cool hover:opacity-90"
                       >
                         Reveal Host Info
                       </Button>
@@ -326,7 +345,7 @@ const PropertyDetails = () => {
                       <div className="space-y-2">
                         {property.hostPhone && (
                           <a href={`tel:${property.hostPhone}`}>
-                            <Button variant="outline" className="w-full">
+                            <Button variant="outline" className="w-full dark:border-gray-600 dark:text-white dark:hover:bg-gray-700">
                               <Phone className="h-4 w-4 mr-2" />
                               {property.hostPhone}
                             </Button>
@@ -334,7 +353,7 @@ const PropertyDetails = () => {
                         )}
                         {property.hostEmail && (
                           <a href={`mailto:${property.hostEmail}`}>
-                            <Button variant="outline" className="w-full">
+                            <Button variant="outline" className="w-full dark:border-gray-600 dark:text-white dark:hover:bg-gray-700">
                               <Mail className="h-4 w-4 mr-2" />
                               Email Host
                             </Button>
@@ -355,8 +374,8 @@ const PropertyDetails = () => {
                     )}
                   </div>
 
-                  <Link to={`/host/${property.hostId}`}>
-                    <Button variant="ghost" className="w-full">
+                  <Link to={`/host/properties/${property.hostId}`}>
+                    <Button variant="ghost" className="w-full dark:text-white dark:hover:bg-gray-700">
                       View All Properties by Host
                     </Button>
                   </Link>
@@ -365,13 +384,13 @@ const PropertyDetails = () => {
             </Card>
 
             {/* Location */}
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Location</h3>
-                <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center mb-4">
-                  <span className="text-gray-500">Map placeholder</span>
+                <h3 className="text-lg font-semibold mb-4 dark:text-white">Location</h3>
+                <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-gray-500 dark:text-gray-400">Map placeholder</span>
                 </div>
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
                   {property.location}
                 </p>
               </CardContent>
@@ -382,14 +401,14 @@ const PropertyDetails = () => {
               <Button 
                 onClick={handleWishlistToggle}
                 variant="outline" 
-                className="w-full"
+                className="w-full dark:border-gray-600 dark:text-white dark:hover:bg-gray-700"
               >
                 <Heart className={`h-4 w-4 mr-2 ${isInWishlist ? 'fill-current text-red-500' : ''}`} />
                 {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
               </Button>
               
               {property.virtualTour && (
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full dark:border-gray-600 dark:text-white dark:hover:bg-gray-700">
                   <Eye className="h-4 w-4 mr-2" />
                   Take Virtual Tour
                 </Button>
