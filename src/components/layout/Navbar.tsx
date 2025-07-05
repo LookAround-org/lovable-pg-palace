@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,7 @@ export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { user, logout } = useAuth();
-  const { wishlistItems } = useWishlist();
+  const { wishlist } = useWishlist();
   const navigate = useNavigate();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -74,9 +73,9 @@ export const Navbar = () => {
                 <Link to="/wishlist">
                   <Button variant="ghost" size="sm" className="relative text-charcoal dark:text-white hover:text-primary dark:hover:text-primary">
                     <Heart className="w-5 h-5" />
-                    {wishlistItems.length > 0 && (
+                    {wishlist.length > 0 && (
                       <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                        {wishlistItems.length}
+                        {wishlist.length}
                       </Badge>
                     )}
                   </Button>
@@ -187,9 +186,9 @@ export const Navbar = () => {
                 >
                   <Heart className="w-4 h-4 mr-2" />
                   Wishlist
-                  {wishlistItems.length > 0 && (
+                  {wishlist.length > 0 && (
                     <Badge className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                      {wishlistItems.length}
+                      {wishlist.length}
                     </Badge>
                   )}
                 </Link>
