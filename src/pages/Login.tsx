@@ -39,30 +39,30 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-light-gray py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-light-gray dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">PG</span>
             </div>
-            <span className="font-bold text-xl text-charcoal">FindMyPG</span>
+            <span className="font-bold text-xl text-charcoal dark:text-white">FindMyPG</span>
           </Link>
         </div>
 
-        <Card className="animate-scaleIn">
+        <Card className="animate-scaleIn dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">
+            <CardTitle className="text-2xl font-bold text-center dark:text-white">
               Welcome back
             </CardTitle>
-            <CardDescription className="text-center">
+            <CardDescription className="text-center dark:text-gray-300">
               Enter your email and password to access your account
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="dark:text-white">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -70,10 +70,11 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="dark:text-white">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -81,6 +82,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
               <Button
@@ -93,7 +95,7 @@ const Login = () => {
             </form>
 
             <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Don't have an account?{' '}
                 <Link to="/signup" className="font-medium text-primary hover:text-primary/80">
                   Sign up

@@ -60,14 +60,14 @@ const About = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 py-20">
+      <section className="bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 dark:from-primary/20 dark:via-secondary/20 dark:to-accent/20 py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-charcoal mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-charcoal dark:text-white mb-6">
             About FindMyPG
           </h1>
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
             We're on a mission to make finding safe, comfortable, and affordable 
             PG accommodations as easy as a few clicks. Born from the frustration 
             of endless property searches, we created a platform that puts trust, 
@@ -77,14 +77,14 @@ const About = () => {
       </section>
 
       {/* Mission & Vision */}
-      <section className="py-16">
+      <section className="py-16 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-charcoal mb-6">
+              <h2 className="text-3xl font-bold text-charcoal dark:text-white mb-6">
                 Our Story
               </h2>
-              <div className="space-y-4 text-gray-600 leading-relaxed">
+              <div className="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed">
                 <p>
                   Founded in 2024, FindMyPG was born from a simple observation: 
                   finding quality PG accommodation shouldn't be a stressful, 
@@ -104,12 +104,12 @@ const About = () => {
             </div>
             <div className="grid grid-cols-2 gap-6">
               {stats.map((stat, index) => (
-                <Card key={index} className="text-center p-6">
+                <Card key={index} className="text-center p-6 dark:bg-gray-800 dark:border-gray-700">
                   <CardContent className="p-0">
-                    <div className="text-3xl font-bold text-primary mb-2">
+                    <div className="text-3xl font-bold text-primary dark:text-primary mb-2">
                       {stat.number}
                     </div>
-                    <div className="text-gray-600 text-sm">
+                    <div className="text-gray-600 dark:text-gray-400 text-sm">
                       {stat.label}
                     </div>
                   </CardContent>
@@ -121,28 +121,28 @@ const About = () => {
       </section>
 
       {/* Values */}
-      <section className="py-16 bg-light-gray">
+      <section className="py-16 bg-light-gray dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-charcoal mb-4">
+            <h2 className="text-3xl font-bold text-charcoal dark:text-white mb-4">
               Our Values
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               These core values guide everything we do and shape how we serve our community
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
-              <Card key={index} className="text-center h-full">
+              <Card key={index} className="text-center h-full dark:bg-gray-900 dark:border-gray-700">
                 <CardContent className="p-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <value.icon className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-charcoal mb-2">
+                  <h3 className="text-xl font-semibold text-charcoal dark:text-white mb-2">
                     {value.title}
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">
+                  <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
                     {value.description}
                   </p>
                 </CardContent>
@@ -153,31 +153,31 @@ const About = () => {
       </section>
 
       {/* Team */}
-      <section className="py-16">
+      <section className="py-16 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-charcoal mb-4">
+            <h2 className="text-3xl font-bold text-charcoal dark:text-white mb-4">
               Meet Our Team
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               Passionate individuals working together to transform the PG accommodation experience
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {team.map((member, index) => (
-              <Card key={index} className="text-center">
+              <Card key={index} className="text-center dark:bg-gray-800 dark:border-gray-700">
                 <CardContent className="p-6">
                   <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-4">
                     <Users className="h-10 w-10 text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-charcoal mb-1">
+                  <h3 className="text-lg font-semibold text-charcoal dark:text-white mb-1">
                     {member.name}
                   </h3>
-                  <p className="text-primary text-sm font-medium mb-3">
+                  <p className="text-primary dark:text-primary text-sm font-medium mb-3">
                     {member.role}
                   </p>
-                  <p className="text-gray-600 text-sm leading-relaxed">
+                  <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
                     {member.description}
                   </p>
                 </CardContent>
@@ -188,43 +188,43 @@ const About = () => {
       </section>
 
       {/* Features Highlight */}
-      <section className="py-16 bg-light-gray">
+      <section className="py-16 bg-light-gray dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-charcoal mb-4">
+            <h2 className="text-3xl font-bold text-charcoal dark:text-white mb-4">
               What Makes Us Different
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               We've built features that address real problems faced by PG seekers and property owners
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card>
+            <Card className="dark:bg-gray-900 dark:border-gray-700">
               <CardContent className="p-6 text-center">
                 <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Verified Properties</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-semibold mb-2 dark:text-white">Verified Properties</h3>
+                <p className="text-gray-600 dark:text-gray-300">
                   Every listing undergoes thorough verification for authenticity and safety
                 </p>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="dark:bg-gray-900 dark:border-gray-700">
               <CardContent className="p-6 text-center">
                 <Search className="h-12 w-12 text-secondary mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Smart Search</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-semibold mb-2 dark:text-white">Smart Search</h3>
+                <p className="text-gray-600 dark:text-gray-300">
                   Advanced filters help you find exactly what you're looking for
                 </p>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="dark:bg-gray-900 dark:border-gray-700">
               <CardContent className="p-6 text-center">
                 <MapPin className="h-12 w-12 text-accent mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Local Expertise</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-semibold mb-2 dark:text-white">Local Expertise</h3>
+                <p className="text-gray-600 dark:text-gray-300">
                   Deep knowledge of local areas and neighborhoods in every city
                 </p>
               </CardContent>
