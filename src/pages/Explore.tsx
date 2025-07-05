@@ -17,9 +17,9 @@ const Explore = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   
-  // Enhanced filter states
+  // Enhanced filter states with updated price range
   const [location, setLocation] = useState(searchParams.get('location') || '');
-  const [priceRange, setPriceRange] = useState([5000, 25000]);
+  const [priceRange, setPriceRange] = useState([8000, 35000]);
   const [genderPreference, setGenderPreference] = useState('any');
   const [amenities, setAmenities] = useState<string[]>([]);
   const [virtualTour, setVirtualTour] = useState(false);
@@ -107,7 +107,7 @@ const Explore = () => {
 
   const clearFilters = () => {
     setLocation('');
-    setPriceRange([5000, 25000]);
+    setPriceRange([8000, 35000]);
     setGenderPreference('any');
     setAmenities([]);
     setVirtualTour(false);
@@ -126,7 +126,7 @@ const Explore = () => {
     propertyType !== 'any',
     sharingType !== 'any',
     rating > 0,
-    priceRange[0] !== 5000 || priceRange[1] !== 25000
+    priceRange[0] !== 8000 || priceRange[1] !== 35000
   ].filter(Boolean).length;
 
   // Filter component for reuse
@@ -175,8 +175,8 @@ const Explore = () => {
           <Slider
             value={priceRange}
             onValueChange={setPriceRange}
-            min={3000}
-            max={30000}
+            min={5000}
+            max={50000}
             step={1000}
             className="mb-4"
           />

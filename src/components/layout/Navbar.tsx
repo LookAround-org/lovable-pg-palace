@@ -67,62 +67,57 @@ export const Navbar = () => {
               </Button>
             </Link>
             
+            {/* Wishlist Icon - Always visible when user is logged in */}
+            {user && (
+              <Link to="/wishlist">
+                <Button variant="ghost" size="sm" className="relative text-charcoal dark:text-white hover:text-primary dark:hover:text-primary">
+                  <Heart className="w-5 h-5" />
+                  {wishlist.length > 0 && (
+                    <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-red-500 text-white">
+                      {wishlist.length}
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
+            )}
+            
             <ThemeToggle />
 
             {user ? (
-              <>
-                <Link to="/wishlist">
-                  <Button variant="ghost" size="sm" className="relative text-charcoal dark:text-white hover:text-primary dark:hover:text-primary">
-                    <Heart className="w-5 h-5" />
-                    {wishlist.length > 0 && (
-                      <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                        {wishlist.length}
-                      </Badge>
-                    )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.avatar} alt={user.name} />
+                      <AvatarFallback className="bg-gradient-cool text-white">
+                        {user.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                   </Button>
-                </Link>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar} alt={user.name} />
-                        <AvatarFallback className="bg-gradient-cool text-white">
-                          {user.name.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <div className="flex items-center justify-start gap-2 p-2">
-                      <div className="flex flex-col space-y-1 leading-none">
-                        <p className="font-medium">{user.name}</p>
-                        <p className="w-[200px] truncate text-sm text-muted-foreground">
-                          {user.email}
-                        </p>
-                      </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border dark:border-gray-700" align="end" forceMount>
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium dark:text-white">{user.name}</p>
+                      <p className="w-[200px] truncate text-sm text-muted-foreground dark:text-gray-400">
+                        {user.email}
+                      </p>
                     </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" />
-                        Profile
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/wishlist" className="cursor-pointer">
-                        <Heart className="mr-2 h-4 w-4" />
-                        Wishlist
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Log out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
+                  </div>
+                  <DropdownMenuSeparator className="dark:bg-gray-700" />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="cursor-pointer dark:text-white dark:hover:bg-gray-700">
+                      <User className="mr-2 h-4 w-4" />
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="dark:bg-gray-700" />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer dark:text-white dark:hover:bg-gray-700">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <div className="flex items-center space-x-2">
                 <Link to="/login">
@@ -141,6 +136,19 @@ export const Navbar = () => {
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-2">
+            {/* Mobile Wishlist Icon */}
+            {user && (
+              <Link to="/wishlist">
+                <Button variant="ghost" size="sm" className="relative text-charcoal dark:text-white">
+                  <Heart className="w-5 h-5" />
+                  {wishlist.length > 0 && (
+                    <Badge className="absolute -top-2 -right-2 h-4 w-4 rounded-full p-0 flex items-center justify-center text-xs bg-red-500 text-white">
+                      {wishlist.length}
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
+            )}
             <ThemeToggle />
             <Button
               variant="ghost"

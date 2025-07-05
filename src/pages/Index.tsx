@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -105,7 +104,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Featured Properties Section */}
+      {/* Featured Properties Section - Enhanced Mobile Scrolling */}
       <section className="py-16 bg-light-gray dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
@@ -122,7 +121,23 @@ const Index = () => {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Mobile Horizontal Scroll */}
+          <div className="md:hidden">
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+              {featuredProperties.map((property, index) => (
+                <div 
+                  key={property.id}
+                  className="flex-shrink-0 w-80 animate-fadeInUp"
+                  style={{animationDelay: `${index * 0.1}s`}}
+                >
+                  <PropertyCard property={property} />
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Desktop Grid */}
+          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredProperties.map((property, index) => (
               <div 
                 key={property.id}
@@ -136,7 +151,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Trending Properties Section */}
+      {/* Trending Properties Section - Enhanced Mobile Scrolling */}
       <section className="py-16 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
@@ -153,7 +168,23 @@ const Index = () => {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Mobile Horizontal Scroll */}
+          <div className="md:hidden">
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+              {trendingProperties.map((property, index) => (
+                <div 
+                  key={property.id}
+                  className="flex-shrink-0 w-80 animate-fadeInUp"
+                  style={{animationDelay: `${index * 0.1}s`}}
+                >
+                  <PropertyCard property={property} />
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Desktop Grid */}
+          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {trendingProperties.map((property, index) => (
               <div 
                 key={property.id}

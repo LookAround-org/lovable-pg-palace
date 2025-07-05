@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -97,18 +96,59 @@ const PropertyDetails = () => {
     }
   };
 
+  // Mock reviews data
+  const reviews = [
+    {
+      id: 1,
+      name: "Priya Sharma",
+      rating: 5,
+      date: "2 weeks ago",
+      comment: "Excellent PG with all amenities. The host is very responsive and the location is perfect for my office commute.",
+      avatar: "/placeholder.svg"
+    },
+    {
+      id: 2,
+      name: "Rahul Kumar",
+      rating: 4,
+      date: "1 month ago", 
+      comment: "Good facilities and clean rooms. WiFi speed could be better but overall satisfied with the stay.",
+      avatar: "/placeholder.svg"
+    },
+    {
+      id: 3,
+      name: "Sneha Patel",
+      rating: 5,
+      date: "2 months ago",
+      comment: "Amazing place! Feels like home. The food is delicious and the common areas are well maintained.",
+      avatar: "/placeholder.svg"
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-light-gray dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back button */}
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate(-1)}
-          className="mb-6 dark:text-white dark:hover:bg-gray-800"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
+        {/* Back button and Virtual Tour button for mobile */}
+        <div className="flex justify-between items-center mb-6">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(-1)}
+            className="dark:text-white dark:hover:bg-gray-800"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          
+          {/* Virtual Tour Button - Mobile Top Right */}
+          {property.virtualTour && (
+            <Button 
+              className="md:hidden bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg"
+              size="sm"
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              360° Tour
+            </Button>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
@@ -298,6 +338,59 @@ const PropertyDetails = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Reviews Section */}
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold dark:text-white">Guest Reviews</h3>
+                  {property.rating && (
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center">
+                        <Star className="h-5 w-5 text-yellow-400 fill-current" />
+                        <span className="ml-1 font-semibold dark:text-white">{property.rating}</span>
+                      </div>
+                      <span className="text-gray-600 dark:text-gray-400">({reviews.length} reviews)</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="space-y-6">
+                  {reviews.map((review) => (
+                    <div key={review.id} className="border-b border-gray-200 dark:border-gray-700 last:border-b-0 pb-6 last:pb-0">
+                      <div className="flex items-start space-x-4">
+                        <img
+                          src={review.avatar}
+                          alt={review.name}
+                          className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-semibold dark:text-white">{review.name}</h4>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">{review.date}</span>
+                          </div>
+                          <div className="flex items-center mb-2">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-4 w-4 ${
+                                  i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300 dark:text-gray-600'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <p className="text-gray-600 dark:text-gray-300">{review.comment}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <Button variant="outline" className="w-full mt-6 dark:border-gray-600 dark:text-white dark:hover:bg-gray-700">
+                  View All Reviews
+                </Button>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Sidebar */}
@@ -407,10 +500,13 @@ const PropertyDetails = () => {
                 {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
               </Button>
               
+              {/* Enhanced Virtual Tour Button */}
               {property.virtualTour && (
-                <Button variant="outline" className="w-full dark:border-gray-600 dark:text-white dark:hover:bg-gray-700">
+                <Button 
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg transform transition-all duration-200 hover:scale-105 hidden md:flex items-center justify-center"
+                >
                   <Eye className="h-4 w-4 mr-2" />
-                  Take Virtual Tour
+                  Take Virtual Tour - 360°
                 </Button>
               )}
             </div>
