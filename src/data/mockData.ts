@@ -1,3 +1,4 @@
+
 export interface Property {
   id: string;
   title: string;
@@ -21,6 +22,8 @@ export interface Property {
   rating?: number;
   reviewCount?: number;
   availabilityStatus: 'available' | 'limited' | 'full';
+  available: boolean;
+  views?: number;
   description: string;
   houseRules: string[];
   createdAt: string;
@@ -49,6 +52,8 @@ export const mockProperties: Property[] = [
     rating: 4.8,
     reviewCount: 124,
     availabilityStatus: 'available',
+    available: true,
+    views: 245,
     description: 'A modern co-living space designed for working professionals. Located in the heart of Koramangala with easy access to IT parks, restaurants, and shopping centers.',
     houseRules: ['No smoking', 'No loud music after 10 PM', 'Keep common areas clean', 'Guest policy applies'],
     createdAt: '2024-01-15'
@@ -74,6 +79,8 @@ export const mockProperties: Property[] = [
     rating: 4.6,
     reviewCount: 89,
     availabilityStatus: 'limited',
+    available: true,
+    views: 189,
     description: 'Safe and secure accommodation for working women with homely meals and all modern amenities.',
     houseRules: ['No male visitors', 'Meal timings to be followed', 'Curfew at 11 PM', 'No pets allowed'],
     createdAt: '2024-01-10'
@@ -100,6 +107,8 @@ export const mockProperties: Property[] = [
     rating: 4.2,
     reviewCount: 67,
     availabilityStatus: 'available',
+    available: true,
+    views: 156,
     description: 'Modern hostel facility for working professionals in the IT hub of Whitefield.',
     houseRules: ['No smoking in rooms', 'Gym timings: 6 AM - 10 PM', 'Visitors allowed till 9 PM', 'Keep noise levels low'],
     createdAt: '2024-01-08'
@@ -125,6 +134,8 @@ export const mockProperties: Property[] = [
     rating: 4.5,
     reviewCount: 92,
     availabilityStatus: 'full',
+    available: false,
+    views: 134,
     description: 'A cozy and affordable single room PG in the bustling area of BTM Layout.',
     houseRules: ['No outside food allowed', 'Maintain silence during study hours', 'Report any issues to management', 'Lock doors when leaving'],
     createdAt: '2024-01-05'
@@ -150,6 +161,8 @@ export const mockProperties: Property[] = [
     rating: 4.9,
     reviewCount: 155,
     availabilityStatus: 'available',
+    available: true,
+    views: 298,
     description: 'Experience luxury living in this premium PG designed exclusively for men in HSR Layout.',
     houseRules: ['Strictly no alcohol', 'No pets', 'Respect fellow residents', 'Adhere to all PG policies'],
     createdAt: '2024-01-01'
@@ -175,6 +188,8 @@ export const mockProperties: Property[] = [
     rating: 4.4,
     reviewCount: 78,
     availabilityStatus: 'limited',
+    available: true,
+    views: 167,
     description: 'A comfortable and secure PG option for working women in the IT hub of Electronic City.',
     houseRules: ['No smoking', 'Maintain cleanliness', 'Inform management of late arrivals', 'Follow all safety guidelines'],
     createdAt: '2023-12-28'
@@ -200,6 +215,8 @@ export const mockProperties: Property[] = [
     rating: 4.3,
     reviewCount: 65,
     availabilityStatus: 'available',
+    available: true,
+    views: 123,
     description: 'An affordable and well-maintained co-living space in the heart of Marathahalli.',
     houseRules: ['No illegal activities', 'Respect privacy of others', 'Conserve water and electricity', 'Adhere to all community rules'],
     createdAt: '2023-12-25'
@@ -225,6 +242,8 @@ export const mockProperties: Property[] = [
     rating: 4.7,
     reviewCount: 110,
     availabilityStatus: 'available',
+    available: true,
+    views: 201,
     description: 'A spacious and well-lit single room available for rent in the prime location of JP Nagar.',
     houseRules: ['No loud parties', 'Keep the room clean', 'Inform management of any damages', 'Follow all building rules'],
     createdAt: '2023-12-20'
@@ -250,6 +269,8 @@ export const mockProperties: Property[] = [
     rating: 4.6,
     reviewCount: 102,
     availabilityStatus: 'limited',
+    available: true,
+    views: 178,
     description: 'Experience deluxe living in this premium PG accommodation located on Sarjapur Road.',
     houseRules: ['No smoking indoors', 'Maintain decorum', 'Respect fellow residents', 'Adhere to all PG policies'],
     createdAt: '2023-12-15'
@@ -275,6 +296,8 @@ export const mockProperties: Property[] = [
     rating: 4.1,
     reviewCount: 55,
     availabilityStatus: 'available',
+    available: true,
+    views: 89,
     description: 'A budget-friendly PG option for students located in the vicinity of RR Nagar.',
     houseRules: ['No alcohol', 'Maintain silence during study hours', 'Respect fellow residents', 'Follow all hostel rules'],
     createdAt: '2023-12-10'
