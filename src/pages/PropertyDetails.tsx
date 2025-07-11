@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,11 +7,34 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Heart, User, Star, Phone, Mail, ArrowLeft, Eye, Calendar, Users, Home, Play } from 'lucide-react';
+import { MapPin, Heart, User, Star, Phone, Mail, ArrowLeft, Eye, Calendar, Users, Home, Play, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWishlist } from '@/contexts/WishlistContext';
-import { mockProperties } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Property {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string;
+  price_single: number;
+  price_double: number;
+  price_triple: number;
+  property_type: string;
+  sharing_type: string;
+  move_in: string;
+  amenities: string[] | null;
+  images: string[] | null;
+  available: boolean;
+  views: number;
+  rating: number | null;
+  host_name: string;
+  host_avatar: string | null;
+  host_id: string;
+  created_at: string;
+  updated_at: string;
+}
 
 const PropertyDetails = () => {
   const { id } = useParams();
@@ -18,15 +42,55 @@ const PropertyDetails = () => {
   const { user } = useAuth();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const { toast } = useToast();
+  const [property, setProperty] = useState<Property | null>(null);
+  const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showHostInfo, setShowHostInfo] = useState(false);
   const [selectedSharingType, setSelectedSharingType] = useState<'single' | 'double' | 'triple'>('single');
   const [showTermsDialog, setShowTermsDialog] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showVirtualTourModal, setShowVirtualTourModal] = useState(false);
-  
-  const property = mockProperties.find(p => p.id === id);
-  
+
+  useEffect(() => {
+    if (id) {
+      fetchProperty();
+    }
+  }, [id]);
+
+  const fetchProperty = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching property:', error);
+        setProperty(null);
+      } else {
+        setProperty(data);
+      }
+    } catch (error) {
+      console.error('Error fetching property:', error);
+      setProperty(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-light-gray">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading property...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!property) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-light-gray">
@@ -109,38 +173,17 @@ const PropertyDetails = () => {
 
   // Pricing data based on sharing type
   const pricingData = {
-    single: { price: property?.price || 0, deposit: 5000, maintenance: 1000 },
-    double: { price: Math.floor((property?.price || 0) * 0.7), deposit: 4000, maintenance: 800 },
-    triple: { price: Math.floor((property?.price || 0) * 0.5), deposit: 3000, maintenance: 600 }
+    single: { price: property.price_single, deposit: 5000, maintenance: 1000 },
+    double: { price: property.price_double, deposit: 4000, maintenance: 800 },
+    triple: { price: property.price_triple, deposit: 3000, maintenance: 600 }
   };
 
-  // Image data based on sharing type (mock URLs)
-  const sharingImages = {
-    single: [
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800',
-      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800',
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800'
-    ],
-    double: [
-      'https://images.unsplash.com/photo-1631049421450-348c649a7be3?w=800',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800',
-      'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800'
-    ],
-    triple: [
-      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800',
-      'https://images.unsplash.com/photo-1631049421450-348c649a7be3?w=800',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800'
-    ]
-  };
-
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'available': return 'bg-success text-white';
-      case 'limited': return 'bg-warning text-white';
-      case 'full': return 'bg-destructive text-white';
-      default: return 'bg-gray-500 text-white';
-    }
-  };
+  // Image data - using the property images or fallback images
+  const propertyImages = property.images && property.images.length > 0 ? property.images : [
+    'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800',
+    'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800',
+    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800'
+  ];
 
   // Mock reviews data
   const reviews = [
@@ -184,16 +227,14 @@ const PropertyDetails = () => {
           </Button>
           
           {/* Virtual Tour Button - Mobile Top Right */}
-          {property.virtualTour && (
-            <Button 
-              onClick={() => setShowVirtualTourModal(true)}
-              className="md:hidden bg-gradient-cool hover:opacity-90 text-white shadow-lg animate-pulse"
-              size="sm"
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              360° Tour
-            </Button>
-          )}
+          <Button 
+            onClick={() => setShowVirtualTourModal(true)}
+            className="md:hidden bg-gradient-cool hover:opacity-90 text-white shadow-lg animate-pulse"
+            size="sm"
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            360° Tour
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -203,18 +244,16 @@ const PropertyDetails = () => {
             <Card className="overflow-hidden">
               <div className="relative aspect-[16/10]">
                 <img
-                  src={sharingImages[selectedSharingType][currentImageIndex] || '/placeholder.svg'}
+                  src={propertyImages[currentImageIndex] || '/placeholder.svg'}
                   alt={property.title}
                   className="w-full h-full object-cover"
                 />
                 
                 {/* Virtual Tour Badge */}
-                {property.virtualTour && (
-                  <Badge className="absolute top-4 left-4 bg-gradient-cool text-white animate-pulse">
-                    <Eye className="h-3 w-3 mr-1" />
-                    360° Tour Available
-                  </Badge>
-                )}
+                <Badge className="absolute top-4 left-4 bg-gradient-cool text-white animate-pulse">
+                  <Eye className="h-3 w-3 mr-1" />
+                  360° Tour Available
+                </Badge>
                 
                 {/* Wishlist Button */}
                 <Button
@@ -229,14 +268,14 @@ const PropertyDetails = () => {
                 </Button>
                 
                 {/* Image navigation */}
-                {sharingImages[selectedSharingType].length > 1 && (
+                {propertyImages.length > 1 && (
                   <>
                     <Button
                       variant="ghost"
                       size="sm"
                       className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
                       onClick={() => setCurrentImageIndex(
-                        currentImageIndex === 0 ? sharingImages[selectedSharingType].length - 1 : currentImageIndex - 1
+                        currentImageIndex === 0 ? propertyImages.length - 1 : currentImageIndex - 1
                       )}
                     >
                       ←
@@ -246,7 +285,7 @@ const PropertyDetails = () => {
                       size="sm"
                       className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
                       onClick={() => setCurrentImageIndex(
-                        currentImageIndex === sharingImages[selectedSharingType].length - 1 ? 0 : currentImageIndex + 1
+                        currentImageIndex === propertyImages.length - 1 ? 0 : currentImageIndex + 1
                       )}
                     >
                       →
@@ -254,7 +293,7 @@ const PropertyDetails = () => {
                     
                     {/* Image dots */}
                     <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                      {sharingImages[selectedSharingType].map((_, index) => (
+                      {propertyImages.map((_, index) => (
                         <button
                           key={index}
                           className={`w-2 h-2 rounded-full ${
@@ -312,24 +351,20 @@ const PropertyDetails = () => {
                       </span>
                       <span className="text-gray-600 ml-2">/month</span>
                     </div>
-                    <Badge className={getStatusBadgeColor(property.availabilityStatus)}>
-                      {property.availabilityStatus === 'available' ? 'Available' :
-                       property.availabilityStatus === 'limited' ? 'Limited Availability' : 'Full'}
+                    <Badge className="bg-success text-white">
+                      {property.available ? 'Available' : 'Not Available'}
                     </Badge>
                   </div>
 
                   {/* Tags */}
                   <div className="flex flex-wrap gap-2">
-                    <Badge className={getGenderBadgeColor(property.genderPreference)}>
-                      {property.genderPreference === 'co-living' ? 'Co-living' : 
-                       property.genderPreference === 'men' ? 'Men Only' : 'Women Only'}
+                    <Badge className="bg-purple-100 text-purple-800">
+                      Co-living
                     </Badge>
                     <Badge variant="outline">
-                      {property.propertyType.charAt(0).toUpperCase() + property.propertyType.slice(1)} Room
+                      {property.property_type}
                     </Badge>
-                    {property.virtualTour && (
-                      <Badge variant="outline">Virtual Tour</Badge>
-                    )}
+                    <Badge variant="outline">Virtual Tour</Badge>
                   </div>
 
                   {/* Rating */}
@@ -339,9 +374,7 @@ const PropertyDetails = () => {
                         <Star className="h-5 w-5 text-yellow-400 fill-current" />
                         <span className="ml-1 font-semibold">{property.rating}</span>
                       </div>
-                      {property.reviewCount && (
-                        <span className="text-gray-600">({property.reviewCount} reviews)</span>
-                      )}
+                      <span className="text-gray-600">({reviews.length} reviews)</span>
                     </div>
                   )}
 
@@ -355,12 +388,12 @@ const PropertyDetails = () => {
                     <div className="text-center p-3 bg-gradient-cool-light rounded-lg">
                       <Home className="h-6 w-6 mx-auto mb-2 text-gradient-cool" />
                       <p className="text-sm font-medium">Property Type</p>
-                      <p className="text-xs text-gray-600">PG/Hostel</p>
+                      <p className="text-xs text-gray-600">{property.property_type}</p>
                     </div>
                     <div className="text-center p-3 bg-gradient-cool-light rounded-lg">
                       <Calendar className="h-6 w-6 mx-auto mb-2 text-gradient-cool" />
                       <p className="text-sm font-medium">Move-in</p>
-                      <p className="text-xs text-gray-600">Immediate</p>
+                      <p className="text-xs text-gray-600">{property.move_in}</p>
                     </div>
                   </div>
 
@@ -392,7 +425,7 @@ const PropertyDetails = () => {
                   <div>
                     <h3 className="text-lg font-semibold mb-2">About this place</h3>
                     <p className="text-gray-600 leading-relaxed">
-                      {property.description}
+                      {property.description || 'No description available for this property.'}
                     </p>
                   </div>
                 </div>
@@ -404,12 +437,16 @@ const PropertyDetails = () => {
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-4">Amenities</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {property.amenities.map((amenity, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-gray-700">{amenity}</span>
-                    </div>
-                  ))}
+                  {property.amenities && property.amenities.length > 0 ? (
+                    property.amenities.map((amenity, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        <span className="text-gray-700">{amenity}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-600">No amenities listed for this property.</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -419,12 +456,18 @@ const PropertyDetails = () => {
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-4">House Rules</h3>
                 <div className="space-y-2">
-                  {property.houseRules.map((rule, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-accent rounded-full"></div>
-                      <span className="text-gray-700">{rule}</span>
-                    </div>
-                  ))}
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-accent rounded-full"></div>
+                    <span className="text-gray-700">No smoking inside the premises</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-accent rounded-full"></div>
+                    <span className="text-gray-700">No loud music after 10 PM</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-accent rounded-full"></div>
+                    <span className="text-gray-700">Guests allowed with prior notice</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -491,14 +534,14 @@ const PropertyDetails = () => {
                 <div className="text-center space-y-4">
                   <div className="w-16 h-16 bg-gradient-cool rounded-full flex items-center justify-center mx-auto">
                     <img 
-                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" 
-                      alt={property.hostName} 
+                      src={property.host_avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"} 
+                      alt={property.host_name} 
                       className="w-full h-full rounded-full object-cover" 
                     />
                   </div>
                   
                   <div>
-                    <h3 className="font-semibold text-lg">{property.hostName}</h3>
+                    <h3 className="font-semibold text-lg">{property.host_name}</h3>
                     <p className="text-gray-600">Property Host</p>
                   </div>
 
@@ -507,7 +550,7 @@ const PropertyDetails = () => {
                       <Star className="h-4 w-4 text-yellow-400 fill-current" />
                       <span className="font-medium">{property.rating}</span>
                       <span className="text-gray-600">
-                        ({property.reviewCount} reviews)
+                        ({reviews.length} reviews)
                       </span>
                     </div>
                   )}
@@ -522,38 +565,32 @@ const PropertyDetails = () => {
                       </Button>
                     ) : (
                       <div className="space-y-2">
-                        {property.hostPhone && (
-                          <a href={`tel:${property.hostPhone}`}>
-                            <Button variant="outline" className="w-full">
-                              <Phone className="h-4 w-4 mr-2" />
-                              {property.hostPhone}
-                            </Button>
-                          </a>
-                        )}
-                        {property.hostEmail && (
-                          <a href={`mailto:${property.hostEmail}`}>
-                            <Button variant="outline" className="w-full">
-                              <Mail className="h-4 w-4 mr-2" />
-                              Email Host
-                            </Button>
-                          </a>
-                        )}
-                        {property.hostPhone && (
-                          <a 
-                            href={`https://wa.me/${property.hostPhone.replace(/\D/g, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <Button className="w-full bg-green-500 hover:bg-green-600">
-                              WhatsApp
-                            </Button>
-                          </a>
-                        )}
+                        <a href="tel:+919876543210">
+                          <Button variant="outline" className="w-full">
+                            <Phone className="h-4 w-4 mr-2" />
+                            +91 9876543210
+                          </Button>
+                        </a>
+                        <a href="mailto:host@example.com">
+                          <Button variant="outline" className="w-full">
+                            <Mail className="h-4 w-4 mr-2" />
+                            Email Host
+                          </Button>
+                        </a>
+                        <a 
+                          href="https://wa.me/919876543210"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button className="w-full bg-green-500 hover:bg-green-600">
+                            WhatsApp
+                          </Button>
+                        </a>
                       </div>
                     )}
                   </div>
 
-                  <Link to={`/host/properties/${property.hostId}`}>
+                  <Link to={`/host/properties/${property.host_id}`}>
                     <Button variant="ghost" className="w-full">
                       View All Properties by Host
                     </Button>
@@ -587,15 +624,13 @@ const PropertyDetails = () => {
               </Button>
               
               {/* Enhanced Virtual Tour Button */}
-              {property.virtualTour && (
-                <Button 
-                  onClick={() => setShowVirtualTourModal(true)}
-                  className="w-full bg-gradient-cool hover:opacity-90 text-white shadow-lg transform transition-all duration-200 hover:scale-105 hidden md:flex items-center justify-center animate-pulse"
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  Take Virtual Tour - 360°
-                </Button>
-              )}
+              <Button 
+                onClick={() => setShowVirtualTourModal(true)}
+                className="w-full bg-gradient-cool hover:opacity-90 text-white shadow-lg transform transition-all duration-200 hover:scale-105 hidden md:flex items-center justify-center animate-pulse"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Take Virtual Tour - 360°
+              </Button>
             </div>
           </div>
         </div>
