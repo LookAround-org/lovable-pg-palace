@@ -111,7 +111,7 @@ export const AddPropertyForm: React.FC<AddPropertyFormProps> = ({ onSuccess, onC
       };
 
       const { error } = await supabase
-        .from('properties')
+        .from('properties' as any)
         .insert([propertyData]);
 
       if (error) {

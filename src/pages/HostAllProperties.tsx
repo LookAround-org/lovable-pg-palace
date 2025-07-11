@@ -11,9 +11,6 @@ import { ArrowLeft, Plus, Search, Filter, Home, Eye, Edit, Trash2, Loader2 } fro
 import { AddPropertyModal } from '@/components/modals/AddPropertyModal';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import type { Database } from '@/integrations/supabase/types';
-
-type DatabaseProperty = Database['public']['Tables']['properties']['Row'];
 
 interface Property {
   id: string;
@@ -36,7 +33,7 @@ interface Property {
   created_at: string;
   updated_at: string;
   hostId?: string;
-  price?: number;
+  price: number;
   genderPreference?: string;
   virtualTour?: string;
   reviewCount?: number;
@@ -59,7 +56,7 @@ const HostAllProperties = () => {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from('properties')
+        .from('properties' as any)
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -68,7 +65,7 @@ const HostAllProperties = () => {
       }
 
       // Transform the data to match the expected format
-      const transformedData: Property[] = (data || []).map((property: DatabaseProperty) => ({
+      const transformedData: Property[] = (data || []).map((property: any) => ({
         ...property,
         hostId: property.host_id,
         hostName: property.host_name,
