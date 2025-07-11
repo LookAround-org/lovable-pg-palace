@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -100,20 +101,33 @@ export const AddPropertyForm: React.FC<AddPropertyFormProps> = ({ onSuccess, onC
       // Filter out empty image URLs
       const validImages = images.filter(img => img.trim() !== '');
 
+      // Create the property object that matches the database schema exactly
       const propertyData = {
-        ...data,
+        title: data.title,
+        description: data.description || null,
+        location: data.location,
+        price_single: data.price_single,
+        price_double: data.price_double,
+        price_triple: data.price_triple,
+        property_type: data.property_type,
+        sharing_type: data.sharing_type,
+        move_in: data.move_in,
+        host_name: data.host_name,
         host_id: user.id,
-        amenities: selectedAmenities,
-        images: validImages,
+        amenities: selectedAmenities.length > 0 ? selectedAmenities : null,
+        images: validImages.length > 0 ? validImages : null,
         available: true,
         views: 0,
+        rating: null,
+        host_avatar: null,
       };
 
       const { error } = await supabase
         .from('properties')
-        .insert([propertyData]);
+        .insert(propertyData);
 
       if (error) {
+        console.error('Supabase error:', error);
         throw error;
       }
 
