@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { Button } from '@/components/ui/button';
@@ -7,18 +7,86 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Plus, Search, Filter, Home, Eye, Edit, Trash2 } from 'lucide-react';
-import { mockProperties } from '@/data/mockData';
+import { ArrowLeft, Plus, Search, Filter, Home, Eye, Edit, Trash2, Loader2 } from 'lucide-react';
+import { AddPropertyModal } from '@/components/modals/AddPropertyModal';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+
+interface Property {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  price_single: number;
+  price_double: number;
+  price_triple: number;
+  property_type: string;
+  sharing_type: string;
+  move_in: string;
+  amenities: string[];
+  images: string[];
+  available: boolean;
+  views: number;
+  rating: number;
+  host_name: string;
+  host_avatar: string;
+  created_at: string;
+  updated_at: string;
+  hostId?: string;
+  price?: number;
+  genderPreference?: string;
+  virtualTour?: string;
+  reviewCount?: number;
+}
 
 const HostAllProperties = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // In a real app, these would be filtered by the logged-in host
-  const hostProperties = mockProperties;
+  useEffect(() => {
+    fetchProperties();
+  }, []);
 
-  const filteredProperties = hostProperties.filter(property => {
+  const fetchProperties = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      // Transform the data to match the expected format
+      const transformedData = data?.map((property) => ({
+        ...property,
+        hostId: property.host_id,
+        price: property.price_single, // Default to single sharing price
+        genderPreference: 'co-living' as const,
+        virtualTour: undefined,
+        reviewCount: Math.floor(Math.random() * 50) + 1, // Random review count for demo
+      })) || [];
+
+      setProperties(transformedData);
+    } catch (error) {
+      console.error('Error fetching properties:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch properties. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filteredProperties = properties.filter(property => {
     const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          property.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'all' || 
@@ -28,11 +96,30 @@ const HostAllProperties = () => {
   });
 
   const stats = {
-    total: hostProperties.length,
-    active: hostProperties.filter(p => p.available).length,
-    inactive: hostProperties.filter(p => !p.available).length,
-    totalViews: hostProperties.reduce((sum, p) => sum + (p.views || 0), 0)
+    total: properties.length,
+    active: properties.filter(p => p.available).length,
+    inactive: properties.filter(p => !p.available).length,
+    totalViews: properties.reduce((sum, p) => sum + (p.views || 0), 0)
   };
+
+  const handleAddProperty = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const handlePropertyAdded = () => {
+    fetchProperties(); // Refresh the properties list
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading properties...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -53,7 +140,10 @@ const HostAllProperties = () => {
               <p className="text-gray-600">Manage your property listings</p>
             </div>
           </div>
-          <Button className="bg-gradient-to-r from-[#BF67D6] to-[#DF2C2C] text-white hover:opacity-90">
+          <Button 
+            onClick={handleAddProperty}
+            className="bg-gradient-to-r from-[#BF67D6] to-[#DF2C2C] text-white hover:opacity-90"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add New Property
           </Button>
@@ -170,7 +260,7 @@ const HostAllProperties = () => {
           ))}
         </div>
 
-        {filteredProperties.length === 0 && (
+        {filteredProperties.length === 0 && !isLoading && (
           <Card className="text-center py-12">
             <CardContent>
               <Home className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -181,7 +271,10 @@ const HostAllProperties = () => {
                   : "Get started by adding your first property listing."}
               </p>
               {!searchTerm && filterStatus === 'all' && (
-                <Button className="bg-gradient-to-r from-[#BF67D6] to-[#DF2C2C] text-white hover:opacity-90">
+                <Button 
+                  onClick={handleAddProperty}
+                  className="bg-gradient-to-r from-[#BF67D6] to-[#DF2C2C] text-white hover:opacity-90"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Your First Property
                 </Button>
@@ -190,6 +283,12 @@ const HostAllProperties = () => {
           </Card>
         )}
       </div>
+
+      <AddPropertyModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={handlePropertyAdded}
+      />
     </div>
   );
 };

@@ -1,455 +1,313 @@
-import React, { useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+
+import React, { useState, useEffect } from 'react';
+import { SearchBar } from '@/components/search/SearchBar';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Slider } from '@/components/ui/slider';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Search, Filter, X, SlidersHorizontal, MapPin, Star, Home, Users } from 'lucide-react';
-import { mockProperties } from '@/data/mockData';
+import { Slider } from '@/components/ui/slider';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Filter, SlidersHorizontal, MapPin, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+
+interface Property {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  price_single: number;
+  price_double: number;
+  price_triple: number;
+  property_type: string;
+  sharing_type: string;
+  move_in: string;
+  amenities: string[];
+  images: string[];
+  available: boolean;
+  views: number;
+  rating: number;
+  host_name: string;
+  host_avatar: string;
+  created_at: string;
+  updated_at: string;
+  hostId?: string;
+  price?: number;
+  genderPreference?: string;
+  virtualTour?: string;
+  reviewCount?: number;
+}
 
 const Explore = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
-  
-  // Enhanced filter states with updated price range
-  const [location, setLocation] = useState(searchParams.get('location') || '');
-  const [priceRange, setPriceRange] = useState([8000, 35000]);
-  const [genderPreference, setGenderPreference] = useState('any');
-  const [amenities, setAmenities] = useState<string[]>([]);
-  const [virtualTour, setVirtualTour] = useState(false);
-  const [sortBy, setSortBy] = useState('newest');
-  const [propertyType, setPropertyType] = useState('any');
-  const [sharingType, setSharingType] = useState('any');
-  const [rating, setRating] = useState(0);
+  const [priceRange, setPriceRange] = useState([5000, 25000]);
+  const [selectedLocation, setSelectedLocation] = useState('all');
+  const [selectedType, setSelectedType] = useState('all');
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const availableAmenities = [
-    'WiFi', 'AC', 'Meals', 'Parking', 'Security', 'Gym', 
-    'Laundry', 'Housekeeping', 'Common Area', 'Power Backup',
-    'Refrigerator', 'Microwave', 'Balcony', 'Study Room'
-  ];
+  const amenityOptions = ['WiFi', 'AC', 'Laundry', 'Meals', 'Security', 'Parking', 'Gym'];
 
-  const filteredProperties = useMemo(() => {
-    let filtered = mockProperties.filter(property => {
-      // Location filter
-      if (location && !property.location.toLowerCase().includes(location.toLowerCase())) {
-        return false;
-      }
-      
-      // Price filter based on sharing type
-      let propertyPrice = property.price;
-      if (sharingType === 'single') propertyPrice = property.sharingOptions.single;
-      else if (sharingType === 'double') propertyPrice = property.sharingOptions.double;
-      else if (sharingType === 'triple') propertyPrice = property.sharingOptions.triple;
-      
-      if (propertyPrice < priceRange[0] || propertyPrice > priceRange[1]) {
-        return false;
-      }
-      
-      // Gender preference filter
-      if (genderPreference !== 'any' && property.genderPreference !== genderPreference) {
-        return false;
-      }
-      
-      // Amenities filter
-      if (amenities.length > 0) {
-        const hasAllAmenities = amenities.every(amenity => 
-          property.amenities.includes(amenity)
-        );
-        if (!hasAllAmenities) return false;
-      }
-      
-      // Virtual tour filter
-      if (virtualTour && !property.virtualTour) {
-        return false;
-      }
-      
-      // Rating filter
-      if (rating > 0 && (!property.rating || property.rating < rating)) {
-        return false;
-      }
-      
-      return true;
-    });
+  useEffect(() => {
+    fetchProperties();
+  }, []);
 
-    // Sort properties
-    switch (sortBy) {
-      case 'price-low':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'rating':
-        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        break;
-      case 'newest':
-      default:
-        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        break;
+  useEffect(() => {
+    filterProperties();
+  }, [properties, priceRange, selectedLocation, selectedType, selectedAmenities, searchTerm]);
+
+  const fetchProperties = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('available', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      // Transform the data to match the expected format
+      const transformedData = data?.map((property) => ({
+        ...property,
+        hostId: property.host_id,
+        price: property.price_single, // Default to single sharing price
+        genderPreference: 'co-living' as const,
+        virtualTour: undefined,
+        reviewCount: Math.floor(Math.random() * 50) + 1, // Random review count for demo
+      })) || [];
+
+      setProperties(transformedData);
+    } catch (error) {
+      console.error('Error fetching properties:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch properties. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filterProperties = () => {
+    let filtered = properties;
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(property =>
+        property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property.location.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
 
-    return filtered;
-  }, [location, priceRange, genderPreference, amenities, virtualTour, sortBy, propertyType, rating, sharingType]);
+    // Price filter
+    filtered = filtered.filter(property =>
+      property.price_single >= priceRange[0] && property.price_single <= priceRange[1]
+    );
+
+    // Location filter
+    if (selectedLocation !== 'all') {
+      filtered = filtered.filter(property =>
+        property.location.toLowerCase().includes(selectedLocation.toLowerCase())
+      );
+    }
+
+    // Type filter
+    if (selectedType !== 'all') {
+      filtered = filtered.filter(property =>
+        property.property_type === selectedType
+      );
+    }
+
+    // Amenities filter
+    if (selectedAmenities.length > 0) {
+      filtered = filtered.filter(property =>
+        selectedAmenities.every(amenity => property.amenities.includes(amenity))
+      );
+    }
+
+    setFilteredProperties(filtered);
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
 
   const handleAmenityChange = (amenity: string, checked: boolean) => {
     if (checked) {
-      setAmenities([...amenities, amenity]);
+      setSelectedAmenities([...selectedAmenities, amenity]);
     } else {
-      setAmenities(amenities.filter(a => a !== amenity));
+      setSelectedAmenities(selectedAmenities.filter(a => a !== amenity));
     }
   };
 
-  const clearFilters = () => {
-    setLocation('');
-    setPriceRange([8000, 35000]);
-    setGenderPreference('any');
-    setAmenities([]);
-    setVirtualTour(false);
-    setSortBy('newest');
-    setPropertyType('any');
-    setSharingType('any');
-    setRating(0);
-    setSearchParams({});
-  };
+  const locations = [...new Set(properties.map(p => p.location))];
 
-  const activeFiltersCount = [
-    location,
-    genderPreference !== 'any',
-    amenities.length > 0,
-    virtualTour,
-    propertyType !== 'any',
-    sharingType !== 'any',
-    rating > 0,
-    priceRange[0] !== 8000 || priceRange[1] !== 35000
-  ].filter(Boolean).length;
-
-  // Filter component for reuse
-  const FilterContent = () => (
-    <div className="space-y-6">
-      {/* Location Search */}
-      <div>
-        <Label className="text-sm font-semibold mb-3 block text-gray-700 dark:text-gray-300">
-          Location
-        </Label>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Search location..."
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="pl-10 border-2 border-gray-200 focus:border-purple-400 dark:border-gray-600 dark:bg-gray-800"
-          />
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading properties...</p>
         </div>
       </div>
-
-      {/* Sharing Type */}
-      <div>
-        <Label className="text-sm font-semibold mb-3 block text-gray-700 dark:text-gray-300">
-          Room Sharing
-        </Label>
-        <Select value={sharingType} onValueChange={setSharingType}>
-          <SelectTrigger className="border-2 border-gray-200 focus:border-purple-400 dark:border-gray-600 dark:bg-gray-800">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="any">Any Sharing</SelectItem>
-            <SelectItem value="single">Single Occupancy</SelectItem>
-            <SelectItem value="double">Double Sharing</SelectItem>
-            <SelectItem value="triple">Triple Sharing</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Price Range */}
-      <div>
-        <Label className="text-sm font-semibold mb-3 block text-gray-700 dark:text-gray-300">
-          Price Range (Monthly)
-        </Label>
-        <div className="px-2">
-          <Slider
-            value={priceRange}
-            onValueChange={setPriceRange}
-            min={5000}
-            max={50000}
-            step={1000}
-            className="mb-4"
-          />
-          <div className="flex justify-between">
-            <Badge variant="outline" className="bg-gradient-cool-light text-gradient-cool font-medium">
-              ₹{priceRange[0].toLocaleString()}
-            </Badge>
-            <Badge variant="outline" className="bg-gradient-cool-light text-gradient-cool font-medium">
-              ₹{priceRange[1].toLocaleString()}
-            </Badge>
-          </div>
-        </div>
-      </div>
-
-      {/* Gender Preference */}
-      <div>
-        <Label className="text-sm font-semibold mb-3 block text-gray-700 dark:text-gray-300">
-          Gender Preference
-        </Label>
-        <div className="grid grid-cols-2 gap-2">
-          {['any', 'men', 'women', 'co-living'].map((option) => (
-            <Button
-              key={option}
-              variant={genderPreference === option ? "default" : "outline"}
-              size="sm"
-              onClick={() => setGenderPreference(option)}
-              className={genderPreference === option ? "bg-gradient-cool text-white" : "dark:border-gray-600 dark:text-gray-300"}
-            >
-              {option === 'any' ? 'Any' : 
-               option === 'men' ? 'Men Only' : 
-               option === 'women' ? 'Women Only' : 'Co-living'}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Rating Filter */}
-      <div>
-        <Label className="text-sm font-semibold mb-3 block text-gray-700 dark:text-gray-300">
-          Minimum Rating
-        </Label>
-        <div className="flex space-x-1">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <button
-              key={star}
-              onClick={() => setRating(star === rating ? 0 : star)}
-              className={`p-2 rounded-lg transition-colors ${
-                star <= rating ? 'text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20' : 'text-gray-300 hover:text-yellow-400'
-              }`}
-            >
-              <Star className="h-5 w-5 fill-current" />
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Amenities */}
-      <div>
-        <Label className="text-sm font-semibold mb-3 block text-gray-700 dark:text-gray-300">
-          Amenities ({amenities.length} selected)
-        </Label>
-        <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
-          {availableAmenities.map((amenity) => (
-            <div key={amenity} className="flex items-center space-x-3">
-              <Checkbox
-                id={amenity}
-                checked={amenities.includes(amenity)}
-                onCheckedChange={(checked) => 
-                  handleAmenityChange(amenity, checked === true)
-                }
-                className="border-2"
-              />
-              <Label htmlFor={amenity} className="text-sm cursor-pointer dark:text-gray-300">
-                {amenity}
-              </Label>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Virtual Tour Toggle */}
-      <Card className="bg-gradient-cool-light dark:bg-gray-700 border-none">
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-3">
-            <Checkbox
-              id="virtual-tour"
-              checked={virtualTour}
-              onCheckedChange={(checked) => setVirtualTour(checked === true)}
-              className="border-2"
-            />
-            <Label htmlFor="virtual-tour" className="text-sm font-medium cursor-pointer dark:text-gray-200">
-              Virtual Tour Available
-            </Label>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Clear Filters */}
-      {activeFiltersCount > 0 && (
-        <Button onClick={clearFilters} variant="outline" className="w-full dark:border-gray-600 dark:text-gray-300">
-          <X className="h-4 w-4 mr-2" />
-          Clear All Filters ({activeFiltersCount})
-        </Button>
-      )}
-    </div>
-  );
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-      {/* Enhanced Hero Section */}
-      <div className="bg-gradient-cool relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/30"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 text-center">
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 lg:mb-6 animate-fadeInUp tracking-tight">
-            Find Your Perfect PG
-          </h1>
-          <p className="text-lg lg:text-xl text-white/90 mb-6 lg:mb-8 animate-fadeInUp max-w-2xl mx-auto leading-relaxed" style={{animationDelay: '0.2s'}}>
-            Discover safe, comfortable, and affordable accommodations tailored to your needs
-          </p>
-          
-          {/* Enhanced Search Bar */}
-          <div className="max-w-3xl mx-auto glass-effect rounded-2xl p-4 lg:p-6 animate-scaleIn" style={{animationDelay: '0.4s'}}>
-            <div className="flex flex-col lg:flex-row gap-3 lg:gap-4">
-              <div className="relative flex-1">
-                <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <Input
-                  placeholder="Enter location, area, or landmark..."
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="pl-12 h-12 lg:h-14 bg-white/95 border-0 text-gray-800 placeholder-gray-500 text-base lg:text-lg font-medium"
-                />
-              </div>
-              <div className="flex gap-2">
-                {/* Desktop Filter Button */}
-                <Button 
-                  variant="outline"
-                  className="hidden lg:flex h-12 lg:h-14 px-4 lg:px-6 bg-white/90 border-white/20 hover:bg-white font-semibold"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  <Filter className="h-5 w-5 mr-2" />
-                  Filters
-                  {activeFiltersCount > 0 && (
-                    <Badge className="ml-2 bg-gradient-cool text-white" variant="secondary">
-                      {activeFiltersCount}
-                    </Badge>
-                  )}
-                </Button>
-                <Button className="h-12 lg:h-14 px-6 lg:px-8 bg-white text-gray-800 hover:bg-gray-100 font-semibold text-base">
-                  <Search className="h-5 w-5 mr-2" />
-                  Search
-                </Button>
-              </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              Find Your Perfect PG
+            </h1>
+            <p className="text-xl mb-8 text-blue-100">
+              Discover comfortable and affordable accommodations near you
+            </p>
+            <div className="max-w-2xl mx-auto">
+              <SearchBar onSearch={handleSearch} />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-        {/* Results Header */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 lg:mb-8">
-          <div>
-            <h2 className="text-2xl lg:text-3xl font-bold text-charcoal dark:text-white mb-2 tracking-tight">
-              Available Properties
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Filter Toggle */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {filteredProperties.length} Properties Found
             </h2>
-            <p className="text-gray-600 dark:text-gray-300 flex items-center text-base lg:text-lg font-medium">
-              <span className="inline-block w-3 h-3 bg-gradient-cool rounded-full mr-3"></span>
-              {filteredProperties.length} properties found
-            </p>
+            <Badge variant="outline" className="text-blue-600 border-blue-600">
+              <MapPin className="h-3 w-3 mr-1" />
+              Bangalore
+            </Badge>
           </div>
-          
-          {/* Sort Controls */}
-          <div className="flex items-center space-x-4 mt-4 lg:mt-0">
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px] lg:w-[200px] border-2 border-gray-200 dark:border-gray-600 h-10 lg:h-12 font-medium">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Newest First</SelectItem>
-                <SelectItem value="price-low">Price: Low to High</SelectItem>
-                <SelectItem value="price-high">Price: High to Low</SelectItem>
-                <SelectItem value="rating">Highest Rated</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Button
+            variant="outline"
+            onClick={() => setShowFilters(!showFilters)}
+            className="border-blue-600 text-blue-600 hover:bg-blue-50"
+          >
+            <SlidersHorizontal className="h-4 w-4 mr-2" />
+            Filters
+          </Button>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-          {/* Enhanced Desktop Filters Sidebar */}
-          <div className={`lg:w-80 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-            <Card className="gradient-border sticky top-8 dark:bg-gray-800">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between text-gradient-cool text-lg font-bold">
-                  <span className="flex items-center">
-                    <SlidersHorizontal className="h-5 w-5 mr-2" />
-                    Advanced Filters
-                  </span>
-                  {activeFiltersCount > 0 && (
-                    <Button variant="ghost" size="sm" onClick={clearFilters} className="text-gray-500 hover:text-gray-700 font-medium">
-                      <X className="h-4 w-4 mr-1" />
-                      Clear ({activeFiltersCount})
-                    </Button>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <FilterContent />
-              </CardContent>
-            </Card>
-          </div>
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Filters Sidebar */}
+          {showFilters && (
+            <div className="lg:w-80 space-y-6">
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-4 flex items-center">
+                    <Filter className="h-5 w-5 mr-2" />
+                    Filters
+                  </h3>
+
+                  {/* Price Range */}
+                  <div className="mb-6">
+                    <h4 className="font-medium mb-3">Price Range</h4>
+                    <Slider
+                      value={priceRange}
+                      onValueChange={setPriceRange}
+                      min={5000}
+                      max={30000}
+                      step={1000}
+                      className="mb-2"
+                    />
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>₹{priceRange[0].toLocaleString()}</span>
+                      <span>₹{priceRange[1].toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Location */}
+                  <div className="mb-6">
+                    <h4 className="font-medium mb-3">Location</h4>
+                    <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Locations</SelectItem>
+                        {locations.map(location => (
+                          <SelectItem key={location} value={location}>{location}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Property Type */}
+                  <div className="mb-6">
+                    <h4 className="font-medium mb-3">Property Type</h4>
+                    <Select value={selectedType} onValueChange={setSelectedType}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Types</SelectItem>
+                        <SelectItem value="PG/Hostel">PG/Hostel</SelectItem>
+                        <SelectItem value="Apartment">Apartment</SelectItem>
+                        <SelectItem value="Room">Room</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Amenities */}
+                  <div>
+                    <h4 className="font-medium mb-3">Amenities</h4>
+                    <div className="space-y-2">
+                      {amenityOptions.map((amenity) => (
+                        <div key={amenity} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={amenity}
+                            checked={selectedAmenities.includes(amenity)}
+                            onCheckedChange={(checked) => handleAmenityChange(amenity, checked as boolean)}
+                          />
+                          <label htmlFor={amenity} className="text-sm font-medium">
+                            {amenity}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Properties Grid */}
           <div className="flex-1">
             {filteredProperties.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
-                {filteredProperties.map((property, index) => (
-                  <div 
-                    key={property.id}
-                    className="animate-fadeInUp"
-                    style={{animationDelay: `${index * 0.1}s`}}
-                  >
-                    <PropertyCard property={property} className="h-full" />
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredProperties.map((property) => (
+                  <PropertyCard key={property.id} property={property} />
                 ))}
               </div>
             ) : (
-              <Card className="text-center py-12 lg:py-16 dark:bg-gray-800">
+              <Card className="text-center py-12">
                 <CardContent>
-                  <div className="w-20 lg:w-24 h-20 lg:h-24 bg-gradient-cool-light rounded-full flex items-center justify-center mx-auto mb-6 animate-float">
-                    <Search className="h-10 lg:h-12 w-10 lg:w-12 text-gray-400" />
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="h-8 w-8 text-gray-400" />
                   </div>
-                  <h3 className="text-xl lg:text-2xl font-semibold text-gray-600 dark:text-gray-300 mb-2">
-                    No properties found
-                  </h3>
-                  <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto text-base">
-                    We couldn't find any properties matching your criteria. Try adjusting your filters to see more results.
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No properties found</h3>
+                  <p className="text-gray-600">
+                    Try adjusting your search criteria or filters to find more properties.
                   </p>
-                  <Button onClick={clearFilters} className="bg-gradient-cool text-white hover:opacity-90 font-semibold">
-                    Clear All Filters
-                  </Button>
                 </CardContent>
               </Card>
             )}
           </div>
         </div>
-      </div>
-
-      {/* Floating Mobile Filter Button */}
-      <div className="lg:hidden fixed bottom-6 right-6 z-50">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button 
-              size="lg"
-              className="bg-gradient-cool text-white shadow-2xl hover:opacity-90 rounded-full h-14 w-14 p-0 animate-float"
-            >
-              <Filter className="h-6 w-6" />
-              {activeFiltersCount > 0 && (
-                <Badge className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center text-xs bg-red-500">
-                  {activeFiltersCount}
-                </Badge>
-              )}
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto dark:bg-gray-800">
-            <SheetHeader>
-              <SheetTitle className="text-xl font-bold text-gradient-cool">
-                Filter Properties
-              </SheetTitle>
-            </SheetHeader>
-            <div className="py-6">
-              <FilterContent />
-            </div>
-          </SheetContent>
-        </Sheet>
       </div>
     </div>
   );
