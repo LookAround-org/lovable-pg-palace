@@ -12,7 +12,7 @@ import { AddPropertyModal } from '@/components/modals/AddPropertyModal';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
-interface Property {
+interface DatabaseProperty {
   id: string;
   title: string;
   description: string;
@@ -32,12 +32,32 @@ interface Property {
   host_avatar: string;
   created_at: string;
   updated_at: string;
-  hostId?: string;
+  host_id: string;
+}
+
+interface PropertyCardProps {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
   price: number;
-  genderPreference?: string;
+  property_type: string;
+  sharing_type: string;
+  move_in: string;
+  amenities: string[];
+  images: string[];
+  available: boolean;
+  views: number;
+  rating: number;
+  host_name: string;
+  host_avatar: string;
+  created_at: string;
+  updated_at: string;
+  hostId: string;
+  hostName: string;
+  genderPreference: 'co-living' | 'men' | 'women';
   virtualTour?: string;
-  reviewCount?: number;
-  hostName?: string;
+  reviewCount: number;
 }
 
 const HostAllProperties = () => {
@@ -45,7 +65,7 @@ const HostAllProperties = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [properties, setProperties] = useState<Property[]>([]);
+  const [properties, setProperties] = useState<DatabaseProperty[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -55,8 +75,8 @@ const HostAllProperties = () => {
   const fetchProperties = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('properties' as any)
+      const { data, error } = await (supabase as any)
+        .from('properties')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -64,19 +84,7 @@ const HostAllProperties = () => {
         throw error;
       }
 
-      // Transform the data to match the expected format
-      const transformedData: Property[] = (data || []).map((property: any) => ({
-        ...property,
-        hostId: property.host_id,
-        hostName: property.host_name,
-        price: property.price_single, // Default to single sharing price
-        genderPreference: 'co-living' as const,
-        virtualTour: undefined,
-        reviewCount: Math.floor(Math.random() * 50) + 1, // Random review count for demo
-        rating: property.rating || 0,
-      }));
-
-      setProperties(transformedData);
+      setProperties(data || []);
     } catch (error) {
       console.error('Error fetching properties:', error);
       toast({
@@ -88,6 +96,32 @@ const HostAllProperties = () => {
       setIsLoading(false);
     }
   };
+
+  // Transform database property to PropertyCard format
+  const transformProperty = (property: DatabaseProperty): PropertyCardProps => ({
+    id: property.id,
+    title: property.title,
+    description: property.description,
+    location: property.location,
+    price: property.price_single,
+    property_type: property.property_type,
+    sharing_type: property.sharing_type,
+    move_in: property.move_in,
+    amenities: property.amenities,
+    images: property.images,
+    available: property.available,
+    views: property.views,
+    rating: property.rating,
+    host_name: property.host_name,
+    host_avatar: property.host_avatar,
+    created_at: property.created_at,
+    updated_at: property.updated_at,
+    hostId: property.host_id,
+    hostName: property.host_name,
+    genderPreference: 'co-living' as const,
+    virtualTour: undefined,
+    reviewCount: Math.floor(Math.random() * 50) + 1,
+  });
 
   const filteredProperties = properties.filter(property => {
     const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -238,7 +272,7 @@ const HostAllProperties = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredProperties.map((property, index) => (
             <div key={property.id} className="relative group">
-              <PropertyCard property={property} />
+              <PropertyCard property={transformProperty(property)} />
               
               {/* Management Overlay */}
               <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">

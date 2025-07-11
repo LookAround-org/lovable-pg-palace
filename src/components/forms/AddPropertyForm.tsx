@@ -110,8 +110,9 @@ export const AddPropertyForm: React.FC<AddPropertyFormProps> = ({ onSuccess, onC
         views: 0,
       };
 
-      const { error } = await supabase
-        .from('properties' as any)
+      // Use supabase client without type checking for the table name
+      const { error } = await (supabase as any)
+        .from('properties')
         .insert([propertyData]);
 
       if (error) {
