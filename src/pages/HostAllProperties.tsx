@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PropertyCard } from '@/components/properties/PropertyCard';
@@ -11,29 +10,9 @@ import { ArrowLeft, Plus, Search, Filter, Home, Eye, Edit, Trash2, Loader2 } fro
 import { AddPropertyModal } from '@/components/modals/AddPropertyModal';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { Tables } from '@/integrations/supabase/types';
 
-interface DatabaseProperty {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  price_single: number;
-  price_double: number;
-  price_triple: number;
-  property_type: string;
-  sharing_type: string;
-  move_in: string;
-  amenities: string[];
-  images: string[];
-  available: boolean;
-  views: number;
-  rating: number;
-  host_name: string;
-  host_avatar: string;
-  created_at: string;
-  updated_at: string;
-  host_id: string;
-}
+type DatabaseProperty = Tables<'properties'>;
 
 interface PropertyCardProps {
   id: string;
@@ -75,7 +54,7 @@ const HostAllProperties = () => {
   const fetchProperties = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('properties')
         .select('*')
         .order('created_at', { ascending: false });
@@ -101,19 +80,19 @@ const HostAllProperties = () => {
   const transformProperty = (property: DatabaseProperty): PropertyCardProps => ({
     id: property.id,
     title: property.title,
-    description: property.description,
+    description: property.description || '',
     location: property.location,
     price: property.price_single,
     property_type: property.property_type,
     sharing_type: property.sharing_type,
     move_in: property.move_in,
-    amenities: property.amenities,
-    images: property.images,
+    amenities: property.amenities || [],
+    images: property.images || [],
     available: property.available,
     views: property.views,
-    rating: property.rating,
+    rating: property.rating || 0,
     host_name: property.host_name,
-    host_avatar: property.host_avatar,
+    host_avatar: property.host_avatar || '',
     created_at: property.created_at,
     updated_at: property.updated_at,
     hostId: property.host_id,

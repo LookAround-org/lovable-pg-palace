@@ -14,7 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      properties: {
+        Row: {
+          amenities: string[] | null
+          available: boolean
+          created_at: string
+          description: string | null
+          host_avatar: string | null
+          host_id: string
+          host_name: string
+          id: string
+          images: string[] | null
+          location: string
+          move_in: string
+          price_double: number
+          price_single: number
+          price_triple: number
+          property_type: string
+          rating: number | null
+          sharing_type: string
+          title: string
+          updated_at: string
+          views: number
+        }
+        Insert: {
+          amenities?: string[] | null
+          available?: boolean
+          created_at?: string
+          description?: string | null
+          host_avatar?: string | null
+          host_id: string
+          host_name: string
+          id?: string
+          images?: string[] | null
+          location: string
+          move_in?: string
+          price_double: number
+          price_single: number
+          price_triple: number
+          property_type?: string
+          rating?: number | null
+          sharing_type?: string
+          title: string
+          updated_at?: string
+          views?: number
+        }
+        Update: {
+          amenities?: string[] | null
+          available?: boolean
+          created_at?: string
+          description?: string | null
+          host_avatar?: string | null
+          host_id?: string
+          host_name?: string
+          id?: string
+          images?: string[] | null
+          location?: string
+          move_in?: string
+          price_double?: number
+          price_single?: number
+          price_triple?: number
+          property_type?: string
+          rating?: number | null
+          sharing_type?: string
+          title?: string
+          updated_at?: string
+          views?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

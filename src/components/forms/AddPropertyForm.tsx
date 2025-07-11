@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -110,8 +109,7 @@ export const AddPropertyForm: React.FC<AddPropertyFormProps> = ({ onSuccess, onC
         views: 0,
       };
 
-      // Use supabase client without type checking for the table name
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('properties')
         .insert([propertyData]);
 
