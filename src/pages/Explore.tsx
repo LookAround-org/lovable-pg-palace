@@ -11,6 +11,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Filter, SlidersHorizontal, MapPin, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/types';
+
+type DatabaseProperty = Database['public']['Tables']['properties']['Row'];
 
 interface Property {
   id: string;
@@ -37,6 +40,7 @@ interface Property {
   genderPreference?: string;
   virtualTour?: string;
   reviewCount?: number;
+  hostName?: string;
 }
 
 const Explore = () => {
@@ -74,14 +78,16 @@ const Explore = () => {
       }
 
       // Transform the data to match the expected format
-      const transformedData = data?.map((property) => ({
+      const transformedData: Property[] = (data || []).map((property: DatabaseProperty) => ({
         ...property,
         hostId: property.host_id,
+        hostName: property.host_name,
         price: property.price_single, // Default to single sharing price
         genderPreference: 'co-living' as const,
         virtualTour: undefined,
         reviewCount: Math.floor(Math.random() * 50) + 1, // Random review count for demo
-      })) || [];
+        rating: property.rating || 0,
+      }));
 
       setProperties(transformedData);
     } catch (error) {

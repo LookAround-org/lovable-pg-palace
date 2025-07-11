@@ -1,44 +1,47 @@
 
 import React, { useState } from 'react';
-import { Search, MapPin } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useNavigate } from 'react-router-dom';
 
-export const SearchBar = () => {
-  const [location, setLocation] = useState('');
-  const navigate = useNavigate();
+interface SearchBarProps {
+  onSearch?: (term: string) => void;
+}
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (location.trim()) {
-      navigate(`/explore?location=${encodeURIComponent(location.trim())}`);
-    } else {
-      navigate('/explore');
+export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearch = () => {
+    if (onSearch) {
+      onSearch(searchTerm);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
     }
   };
 
   return (
-    <form onSubmit={handleSearch} className="w-full">
-      <div className="relative flex items-center">
-        <div className="relative flex-1">
-          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            type="text"
-            placeholder="Search by location, area, or landmark"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="pl-10 pr-20 h-12 rounded-l-full border-r-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-          />
-        </div>
-        <Button 
-          type="submit"
-          className="h-12 px-6 rounded-r-full"
-        >
-          <Search className="h-4 w-4 mr-2" />
-          Search
-        </Button>
+    <div className="flex w-full max-w-2xl mx-auto">
+      <div className="relative flex-1">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Input
+          type="text"
+          placeholder="Search by location, area, or property name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyPress={handleKeyPress}
+          className="pl-10 pr-4 py-3 w-full text-lg border-2 border-gray-200 focus:border-blue-500 rounded-l-lg rounded-r-none"
+        />
       </div>
-    </form>
+      <Button 
+        onClick={handleSearch}
+        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 text-lg font-medium rounded-r-lg rounded-l-none"
+      >
+        Search
+      </Button>
+    </div>
   );
 };
