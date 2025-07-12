@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Heart, User, Star, Phone, Mail, ArrowLeft, Eye, Calendar, Users, Home, Play, Loader2 } from 'lucide-react';
+import { MapPin, Heart, User, Star, Phone, Mail, ArrowLeft, Eye, Calendar, Users, Home, Play, Loader2, Utensils, Sofa, Car, Train, ShoppingBag, Hospital } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useToast } from '@/hooks/use-toast';
@@ -50,6 +49,29 @@ const PropertyDetails = () => {
   const [showTermsDialog, setShowTermsDialog] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showVirtualTourModal, setShowVirtualTourModal] = useState(false);
+
+  // Dummy data for new features
+  const propertyFeatures = {
+    foodIncluded: true,
+    furnishing: 'Fully Furnished',
+    furniture: [
+      'Single Bed with Mattress',
+      'Study Table & Chair',
+      'Wardrobe',
+      'Side Table',
+      'Mirror',
+      'Ceiling Fan',
+      'Window Curtains'
+    ],
+    nearbyFacilities: [
+      { name: 'Metro Station', distance: '0.5 km', icon: Train },
+      { name: 'Shopping Mall', distance: '2 km', icon: ShoppingBag },
+      { name: 'Hospital', distance: '1.5 km', icon: Hospital },
+      { name: 'Bus Stop', distance: '200 m', icon: Car },
+      { name: 'ATM', distance: '300 m', icon: MapPin },
+      { name: 'Grocery Store', distance: '500 m', icon: ShoppingBag }
+    ]
+  };
 
   useEffect(() => {
     if (id) {
@@ -171,11 +193,26 @@ const PropertyDetails = () => {
     }
   };
 
-  // Pricing data based on sharing type
+  // Pricing data based on sharing type with refundable deposit
   const pricingData = {
-    single: { price: property.price_single, deposit: 5000, maintenance: 1000 },
-    double: { price: property.price_double, deposit: 4000, maintenance: 800 },
-    triple: { price: property.price_triple, deposit: 3000, maintenance: 600 }
+    single: { 
+      price: property.price_single, 
+      deposit: 5000, 
+      refundableDeposit: 4000,
+      maintenance: 1000 
+    },
+    double: { 
+      price: property.price_double, 
+      deposit: 4000, 
+      refundableDeposit: 3200,
+      maintenance: 800 
+    },
+    triple: { 
+      price: property.price_triple, 
+      deposit: 3000, 
+      refundableDeposit: 2500,
+      maintenance: 600 
+    }
   };
 
   // Image data - using the property images or fallback images
@@ -323,6 +360,26 @@ const PropertyDetails = () => {
                     </div>
                   </div>
 
+                  {/* Food & Furnishing Info */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <Utensils className="h-5 w-5 text-green-600" />
+                      <div>
+                        <p className="font-semibold text-gray-800">Food Included</p>
+                        <p className="text-sm text-gray-600">
+                          {propertyFeatures.foodIncluded ? 'Yes, meals provided' : 'Not included'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Sofa className="h-5 w-5 text-blue-600" />
+                      <div>
+                        <p className="font-semibold text-gray-800">Furnishing</p>
+                        <p className="text-sm text-gray-600">{propertyFeatures.furnishing}</p>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Sharing Type Selector */}
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-3">Select Sharing Type</h3>
@@ -365,6 +422,12 @@ const PropertyDetails = () => {
                       {property.property_type}
                     </Badge>
                     <Badge variant="outline">Virtual Tour</Badge>
+                    {propertyFeatures.foodIncluded && (
+                      <Badge className="bg-green-100 text-green-800">
+                        <Utensils className="h-3 w-3 mr-1" />
+                        Food Included
+                      </Badge>
+                    )}
                   </div>
 
                   {/* Rating */}
@@ -397,7 +460,7 @@ const PropertyDetails = () => {
                     </div>
                   </div>
 
-                  {/* Pricing Details */}
+                  {/* Pricing Details with Refundable Deposit */}
                   <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                     <h3 className="text-lg font-semibold mb-3">Pricing Details ({selectedSharingType} sharing)</h3>
                     <div className="space-y-2">
@@ -408,6 +471,10 @@ const PropertyDetails = () => {
                       <div className="flex justify-between">
                         <span className="text-gray-600">Security Deposit:</span>
                         <span className="font-medium">₹{pricingData[selectedSharingType].deposit.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500 ml-4">- Refundable Amount:</span>
+                        <span className="text-green-600 font-medium">₹{pricingData[selectedSharingType].refundableDeposit.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Maintenance:</span>
@@ -432,10 +499,52 @@ const PropertyDetails = () => {
               </CardContent>
             </Card>
 
+            {/* Furniture List */}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <Sofa className="h-5 w-5 mr-2" />
+                  Furniture & Amenities Included
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {propertyFeatures.furniture.map((item, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <span className="text-gray-700">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Nearby Facilities */}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <MapPin className="h-5 w-5 mr-2" />
+                  Nearby Facilities
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {propertyFeatures.nearbyFacilities.map((facility, index) => {
+                    const IconComponent = facility.icon;
+                    return (
+                      <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <IconComponent className="h-5 w-5 text-blue-600" />
+                        <div>
+                          <p className="font-medium text-gray-800">{facility.name}</p>
+                          <p className="text-sm text-gray-600">{facility.distance}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Amenities */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Amenities</h3>
+                <h3 className="text-lg font-semibold mb-4">Additional Amenities</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {property.amenities && property.amenities.length > 0 ? (
                     property.amenities.map((amenity, index) => (
@@ -445,7 +554,7 @@ const PropertyDetails = () => {
                       </div>
                     ))
                   ) : (
-                    <p className="text-gray-600">No amenities listed for this property.</p>
+                    <p className="text-gray-600">No additional amenities listed for this property.</p>
                   )}
                 </div>
               </CardContent>
