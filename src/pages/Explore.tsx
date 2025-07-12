@@ -70,8 +70,15 @@ const Explore = () => {
   const [selectedType, setSelectedType] = useState('all');
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCity, setSelectedCity] = useState('bangalore');
 
   const amenityOptions = ['WiFi', 'AC', 'Laundry', 'Meals', 'Security', 'Parking', 'Gym'];
+
+  const cities = [
+    { value: 'bangalore', label: 'Bangalore', available: true },
+    { value: 'hyderabad', label: 'Hyderabad', available: false },
+    { value: 'chennai', label: 'Chennai', available: false }
+  ];
 
   useEffect(() => {
     fetchProperties();
@@ -79,7 +86,7 @@ const Explore = () => {
 
   useEffect(() => {
     filterProperties();
-  }, [properties, priceRange, selectedLocation, selectedType, selectedAmenities, searchTerm]);
+  }, [properties, priceRange, selectedLocation, selectedType, selectedAmenities, searchTerm, selectedCity]);
 
   const fetchProperties = async () => {
     try {
@@ -109,6 +116,13 @@ const Explore = () => {
 
   const filterProperties = () => {
     let filtered = properties;
+
+    // City filter - only show properties if city is available
+    if (selectedCity !== 'bangalore') {
+      filtered = []; // No properties for coming soon cities
+      setFilteredProperties(filtered);
+      return;
+    }
 
     // Search filter
     if (searchTerm) {
@@ -187,6 +201,8 @@ const Explore = () => {
     reviewCount: Math.floor(Math.random() * 50) + 1,
   });
 
+  const currentCity = cities.find(city => city.value === selectedCity);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -226,7 +242,7 @@ const Explore = () => {
             </h2>
             <Badge variant="outline" className="text-blue-600 border-blue-600">
               <MapPin className="h-3 w-3 mr-1" />
-              Bangalore
+              {currentCity?.label}
             </Badge>
           </div>
           <Button
@@ -250,6 +266,32 @@ const Explore = () => {
                     Filters
                   </h3>
 
+                  {/* City Selection */}
+                  <div className="mb-6">
+                    <h4 className="font-medium mb-3">City</h4>
+                    <Select value={selectedCity} onValueChange={setSelectedCity}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cities.map(city => (
+                          <SelectItem 
+                            key={city.value} 
+                            value={city.value}
+                            disabled={!city.available}
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <span>{city.label}</span>
+                              {!city.available && (
+                                <span className="text-xs text-gray-500 ml-2">Coming Soon</span>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   {/* Price Range */}
                   <div className="mb-6">
                     <h4 className="font-medium mb-3">Price Range</h4>
@@ -260,6 +302,7 @@ const Explore = () => {
                       max={30000}
                       step={1000}
                       className="mb-2"
+                      disabled={selectedCity !== 'bangalore'}
                     />
                     <div className="flex justify-between text-sm text-gray-600">
                       <span>₹{priceRange[0].toLocaleString()}</span>
@@ -270,7 +313,7 @@ const Explore = () => {
                   {/* Location */}
                   <div className="mb-6">
                     <h4 className="font-medium mb-3">Location</h4>
-                    <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                    <Select value={selectedLocation} onValueChange={setSelectedLocation} disabled={selectedCity !== 'bangalore'}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -286,7 +329,7 @@ const Explore = () => {
                   {/* Property Type */}
                   <div className="mb-6">
                     <h4 className="font-medium mb-3">Property Type</h4>
-                    <Select value={selectedType} onValueChange={setSelectedType}>
+                    <Select value={selectedType} onValueChange={setSelectedType} disabled={selectedCity !== 'bangalore'}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -309,6 +352,7 @@ const Explore = () => {
                             id={amenity}
                             checked={selectedAmenities.includes(amenity)}
                             onCheckedChange={(checked) => handleAmenityChange(amenity, checked as boolean)}
+                            disabled={selectedCity !== 'bangalore'}
                           />
                           <label htmlFor={amenity} className="text-sm font-medium">
                             {amenity}
@@ -324,7 +368,19 @@ const Explore = () => {
 
           {/* Properties Grid */}
           <div className="flex-1">
-            {filteredProperties.length > 0 ? (
+            {selectedCity !== 'bangalore' ? (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Coming Soon to {currentCity?.label}!</h3>
+                  <p className="text-gray-600">
+                    We're working hard to bring our services to {currentCity?.label}. Stay tuned for updates!
+                  </p>
+                </CardContent>
+              </Card>
+            ) : filteredProperties.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredProperties.map((property) => (
                   <PropertyCard key={property.id} property={transformProperty(property)} />
