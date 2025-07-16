@@ -16,7 +16,7 @@ const HelpCenter = () => {
       color: "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
     },
     {
-      title: "Property Search",
+      title: "Property Search", 
       icon: Search,
       articles: 8,
       color: "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300"
@@ -187,22 +187,7 @@ const HelpCenter = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="text-center p-6 bg-white dark:bg-gray-700 rounded-xl shadow-sm">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MessageCircle className="h-6 w-6 text-blue-600 dark:text-blue-300" />
-              </div>
-              <h3 className="text-lg font-semibold text-charcoal dark:text-white mb-2">
-                Live Chat
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm">
-                Chat with our support team
-              </p>
-              <Button variant="outline" className="w-full dark:border-gray-500 dark:text-white dark:hover:bg-gray-600">
-                Start Chat
-              </Button>
-            </div>
-
+          <div className="grid md:grid-cols-2 gap-6">
             <div className="text-center p-6 bg-white dark:bg-gray-700 rounded-xl shadow-sm">
               <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Mail className="h-6 w-6 text-green-600 dark:text-green-300" />

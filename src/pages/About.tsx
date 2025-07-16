@@ -44,11 +44,6 @@ const About = () => {
       name: 'Meera Reddy',
       role: 'Head of Operations',
       description: 'Operations expert focused on creating seamless experiences for both tenants and property owners.'
-    },
-    {
-      name: 'Rohit Kumar',
-      role: 'Head of Growth',
-      description: 'Growth strategist dedicated to expanding our reach and helping more people find their perfect PG.'
     }
   ];
 
@@ -164,7 +159,7 @@ const About = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {team.map((member, index) => (
               <Card key={index} className="text-center dark:bg-gray-800 dark:border-gray-700">
                 <CardContent className="p-6">

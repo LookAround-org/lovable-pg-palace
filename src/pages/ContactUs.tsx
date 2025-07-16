@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Phone, Mail, Clock, MessageCircle, Send } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -220,22 +221,6 @@ const ContactUs = () => {
               </p>
               <Button variant="outline" className="w-full dark:border-gray-600 dark:text-white dark:hover:bg-gray-700">
                 Visit FAQ
-              </Button>
-            </div>
-
-            {/* Live Chat */}
-            <div className="bg-gradient-cool-light dark:bg-gray-700 rounded-xl p-6">
-              <div className="flex items-center mb-4">
-                <MessageCircle className="h-6 w-6 text-purple-600 dark:text-purple-400 mr-3" />
-                <h3 className="text-xl font-semibold text-charcoal dark:text-white">
-                  Live Chat Available
-                </h3>
-              </div>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">
-                Need immediate assistance? Our live chat support is available during business hours.
-              </p>
-              <Button className="bg-gradient-cool text-white hover:opacity-90 w-full">
-                Start Live Chat
               </Button>
             </div>
 
