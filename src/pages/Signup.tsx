@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -51,10 +50,11 @@ const Signup = () => {
     try {
       await signup(email, password, name, phone);
       toast({
-        title: "Account created!",
-        description: "Welcome to LookaroundPG. You can now explore properties.",
+        title: "Check your email!",
+        description: "We've sent you a confirmation email. Please verify your email address and then login to start exploring properties.",
       });
-      navigate('/');
+      // Redirect to login page after successful signup
+      navigate('/login');
     } catch (error: any) {
       toast({
         title: "Signup failed",

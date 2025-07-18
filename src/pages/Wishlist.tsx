@@ -13,6 +13,8 @@ const Wishlist = () => {
   const { wishlist } = useWishlist();
   const navigate = useNavigate();
 
+  console.log('Wishlist page - User:', user?.email, 'Wishlist IDs:', wishlist);
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-light-gray">
@@ -34,9 +36,14 @@ const Wishlist = () => {
     );
   }
 
-  const wishlistProperties = mockProperties.filter(property => 
-    wishlist.includes(property.id)
-  );
+  // Filter properties based on wishlist IDs
+  const wishlistProperties = mockProperties.filter(property => {
+    const isInWishlist = wishlist.includes(property.id);
+    console.log('Property:', property.id, property.title, 'In wishlist:', isInWishlist);
+    return isInWishlist;
+  });
+
+  console.log('Filtered wishlist properties:', wishlistProperties.length, wishlistProperties.map(p => ({ id: p.id, title: p.title })));
 
   return (
     <div className="min-h-screen bg-light-gray">
