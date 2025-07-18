@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Heart, User, Star, Phone, Mail, ArrowLeft, Eye, Calendar, Users, Home, Play, Loader2, Utensils, Sofa, Car, Train, ShoppingBag, Hospital } from 'lucide-react';
+import { MapPin, Heart, User, Star, Phone, Mail, ArrowLeft, Eye, Calendar, Users, Home, Play, Loader2, Utensils, Sofa, Car, Train, ShoppingBag, Hospital, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useToast } from '@/hooks/use-toast';
@@ -263,15 +263,20 @@ const PropertyDetails = () => {
             Back
           </Button>
           
-          {/* Virtual Tour Button - Mobile Top Right */}
-          <Button 
-            onClick={() => setShowVirtualTourModal(true)}
-            className="md:hidden bg-gradient-cool hover:opacity-90 text-white shadow-lg animate-pulse"
-            size="sm"
-          >
-            <Eye className="h-4 w-4 mr-2" />
-            360° Tour
-          </Button>
+          {/* Virtual Tour Button - Mobile Top Right - BLURRED */}
+          <div className="relative md:hidden">
+            <Button 
+              disabled
+              className="bg-gray-400 hover:bg-gray-400 text-white shadow-lg opacity-50 cursor-not-allowed"
+              size="sm"
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              360° Tour
+            </Button>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Clock className="h-4 w-4 text-gray-600" />
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -286,11 +291,13 @@ const PropertyDetails = () => {
                   className="w-full h-full object-cover"
                 />
                 
-                {/* Virtual Tour Badge */}
-                <Badge className="absolute top-4 left-4 bg-gradient-cool text-white animate-pulse">
-                  <Eye className="h-3 w-3 mr-1" />
-                  360° Tour Available
-                </Badge>
+                {/* Virtual Tour Badge - BLURRED */}
+                <div className="absolute top-4 left-4">
+                  <Badge className="bg-gray-400 text-white opacity-50">
+                    <Clock className="h-3 w-3 mr-1" />
+                    Coming Soon
+                  </Badge>
+                </div>
                 
                 {/* Wishlist Button */}
                 <Button
@@ -360,43 +367,57 @@ const PropertyDetails = () => {
                     </div>
                   </div>
 
-                  {/* Food & Furnishing Info */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <Utensils className="h-5 w-5 text-green-600" />
-                      <div>
-                        <p className="font-semibold text-gray-800">Food Included</p>
-                        <p className="text-sm text-gray-600">
-                          {propertyFeatures.foodIncluded ? 'Yes, meals provided' : 'Not included'}
-                        </p>
+                  {/* Food & Furnishing Info - BLURRED */}
+                  <div className="relative">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg blur-sm">
+                      <div className="flex items-center space-x-3">
+                        <Utensils className="h-5 w-5 text-green-600" />
+                        <div>
+                          <p className="font-semibold text-gray-800">Food Included</p>
+                          <p className="text-sm text-gray-600">
+                            {propertyFeatures.foodIncluded ? 'Yes, meals provided' : 'Not included'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <Sofa className="h-5 w-5 text-blue-600" />
+                        <div>
+                          <p className="font-semibold text-gray-800">Furnishing</p>
+                          <p className="text-sm text-gray-600">{propertyFeatures.furnishing}</p>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <Sofa className="h-5 w-5 text-blue-600" />
-                      <div>
-                        <p className="font-semibold text-gray-800">Furnishing</p>
-                        <p className="text-sm text-gray-600">{propertyFeatures.furnishing}</p>
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
+                      <div className="text-center">
+                        <Clock className="h-8 w-8 text-gray-600 mx-auto mb-2" />
+                        <p className="text-sm font-medium text-gray-800">Coming Soon</p>
+                        <p className="text-xs text-gray-600">We'll notify you after the update</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Sharing Type Selector */}
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-3">Select Sharing Type</h3>
-                    <div className="flex space-x-3">
-                      {(['single', 'double', 'triple'] as const).map((type) => (
-                        <Button
-                          key={type}
-                          variant={selectedSharingType === type ? 'default' : 'outline'}
-                          onClick={() => {
-                            setSelectedSharingType(type);
-                            setCurrentImageIndex(0);
-                          }}
-                          className={selectedSharingType === type ? 'bg-gradient-cool text-white' : ''}
-                        >
-                          {type === 'single' ? 'Single' : type === 'double' ? 'Double' : 'Triple'} Sharing
-                        </Button>
-                      ))}
+                  {/* Sharing Type Selector - BLURRED */}
+                  <div className="mb-6 relative">
+                    <div className="blur-sm">
+                      <h3 className="text-lg font-semibold mb-3">Select Sharing Type</h3>
+                      <div className="flex space-x-3">
+                        {(['single', 'double', 'triple'] as const).map((type) => (
+                          <Button
+                            key={type}
+                            variant={selectedSharingType === type ? 'default' : 'outline'}
+                            className={selectedSharingType === type ? 'bg-gradient-cool text-white' : ''}
+                            disabled
+                          >
+                            {type === 'single' ? 'Single' : type === 'double' ? 'Double' : 'Triple'} Sharing
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
+                      <div className="text-center">
+                        <Clock className="h-6 w-6 text-gray-600 mx-auto mb-1" />
+                        <p className="text-xs font-medium text-gray-800">Coming Soon</p>
+                      </div>
                     </div>
                   </div>
 
@@ -413,7 +434,7 @@ const PropertyDetails = () => {
                     </Badge>
                   </div>
 
-                  {/* Tags */}
+                  {/* Tags - BLUR Virtual Tour badge */}
                   <div className="flex flex-wrap gap-2">
                     <Badge className="bg-purple-100 text-purple-800">
                       Co-living
@@ -421,13 +442,21 @@ const PropertyDetails = () => {
                     <Badge variant="outline">
                       {property.property_type}
                     </Badge>
-                    <Badge variant="outline">Virtual Tour</Badge>
-                    {propertyFeatures.foodIncluded && (
-                      <Badge className="bg-green-100 text-green-800">
+                    <div className="relative">
+                      <Badge variant="outline" className="blur-sm opacity-50">Virtual Tour</Badge>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Clock className="h-3 w-3 text-gray-600" />
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <Badge className="bg-green-100 text-green-800 blur-sm opacity-50">
                         <Utensils className="h-3 w-3 mr-1" />
                         Food Included
                       </Badge>
-                    )}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Clock className="h-3 w-3 text-gray-600" />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Rating */}
@@ -441,12 +470,17 @@ const PropertyDetails = () => {
                     </div>
                   )}
 
-                  {/* Quick Info Cards */}
+                  {/* Quick Info Cards - BLUR sharing type and property type */}
                   <div className="grid grid-cols-3 gap-4 mt-6">
-                    <div className="text-center p-3 bg-gradient-cool-light rounded-lg">
-                      <Users className="h-6 w-6 mx-auto mb-2 text-gradient-cool" />
-                      <p className="text-sm font-medium">Sharing Type</p>
-                      <p className="text-xs text-gray-600 capitalize">{selectedSharingType}</p>
+                    <div className="relative">
+                      <div className="text-center p-3 bg-gradient-cool-light rounded-lg blur-sm">
+                        <Users className="h-6 w-6 mx-auto mb-2 text-gradient-cool" />
+                        <p className="text-sm font-medium">Sharing Type</p>
+                        <p className="text-xs text-gray-600 capitalize">{selectedSharingType}</p>
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
+                        <Clock className="h-4 w-4 text-gray-600" />
+                      </div>
                     </div>
                     <div className="text-center p-3 bg-gradient-cool-light rounded-lg">
                       <Home className="h-6 w-6 mx-auto mb-2 text-gradient-cool" />
@@ -460,30 +494,39 @@ const PropertyDetails = () => {
                     </div>
                   </div>
 
-                  {/* Pricing Details with Refundable Deposit */}
-                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                    <h3 className="text-lg font-semibold mb-3">Pricing Details ({selectedSharingType} sharing)</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Monthly Rent:</span>
-                        <span className="font-medium">₹{pricingData[selectedSharingType].price.toLocaleString()}</span>
+                  {/* Pricing Details with Refundable Deposit - BLURRED */}
+                  <div className="mt-6 relative">
+                    <div className="p-4 bg-gray-50 rounded-lg blur-sm">
+                      <h3 className="text-lg font-semibold mb-3">Pricing Details ({selectedSharingType} sharing)</h3>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Monthly Rent:</span>
+                          <span className="font-medium">₹{pricingData[selectedSharingType].price.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Security Deposit:</span>
+                          <span className="font-medium">₹{pricingData[selectedSharingType].deposit.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-500 ml-4">- Refundable Amount:</span>
+                          <span className="text-green-600 font-medium">₹{pricingData[selectedSharingType].refundableDeposit.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Maintenance:</span>
+                          <span className="font-medium">₹{pricingData[selectedSharingType].maintenance.toLocaleString()}</span>
+                        </div>
+                        <hr className="my-2" />
+                        <div className="flex justify-between font-semibold text-lg">
+                          <span>Total Move-in Cost:</span>
+                          <span className="text-primary">₹{(pricingData[selectedSharingType].price + pricingData[selectedSharingType].deposit + pricingData[selectedSharingType].maintenance).toLocaleString()}</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Security Deposit:</span>
-                        <span className="font-medium">₹{pricingData[selectedSharingType].deposit.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500 ml-4">- Refundable Amount:</span>
-                        <span className="text-green-600 font-medium">₹{pricingData[selectedSharingType].refundableDeposit.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Maintenance:</span>
-                        <span className="font-medium">₹{pricingData[selectedSharingType].maintenance.toLocaleString()}</span>
-                      </div>
-                      <hr className="my-2" />
-                      <div className="flex justify-between font-semibold text-lg">
-                        <span>Total Move-in Cost:</span>
-                        <span className="text-primary">₹{(pricingData[selectedSharingType].price + pricingData[selectedSharingType].deposit + pricingData[selectedSharingType].maintenance).toLocaleString()}</span>
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/90 rounded-lg">
+                      <div className="text-center">
+                        <Clock className="h-8 w-8 text-gray-600 mx-auto mb-2" />
+                        <p className="text-sm font-medium text-gray-800">Coming Soon</p>
+                        <p className="text-xs text-gray-600">We'll notify you after the update</p>
                       </div>
                     </div>
                   </div>
@@ -499,9 +542,9 @@ const PropertyDetails = () => {
               </CardContent>
             </Card>
 
-            {/* Furniture List */}
-            <Card>
-              <CardContent className="p-6">
+            {/* Furniture List - BLURRED */}
+            <Card className="relative">
+              <CardContent className="p-6 blur-sm">
                 <h3 className="text-lg font-semibold mb-4 flex items-center">
                   <Sofa className="h-5 w-5 mr-2" />
                   Furniture & Amenities Included
@@ -515,11 +558,18 @@ const PropertyDetails = () => {
                   ))}
                 </div>
               </CardContent>
+              <div className="absolute inset-0 flex items-center justify-center bg-white/90 rounded-lg">
+                <div className="text-center">
+                  <Clock className="h-8 w-8 text-gray-600 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-800">Coming Soon</p>
+                  <p className="text-xs text-gray-600">We'll notify you after the update</p>
+                </div>
+              </div>
             </Card>
 
-            {/* Nearby Facilities */}
-            <Card>
-              <CardContent className="p-6">
+            {/* Nearby Facilities - BLURRED */}
+            <Card className="relative">
+              <CardContent className="p-6 blur-sm">
                 <h3 className="text-lg font-semibold mb-4 flex items-center">
                   <MapPin className="h-5 w-5 mr-2" />
                   Nearby Facilities
@@ -539,11 +589,18 @@ const PropertyDetails = () => {
                   })}
                 </div>
               </CardContent>
+              <div className="absolute inset-0 flex items-center justify-center bg-white/90 rounded-lg">
+                <div className="text-center">
+                  <Clock className="h-8 w-8 text-gray-600 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-800">Coming Soon</p>
+                  <p className="text-xs text-gray-600">We'll notify you after the update</p>
+                </div>
+              </div>
             </Card>
 
-            {/* Amenities */}
-            <Card>
-              <CardContent className="p-6">
+            {/* Additional Amenities - BLURRED */}
+            <Card className="relative">
+              <CardContent className="p-6 blur-sm">
                 <h3 className="text-lg font-semibold mb-4">Additional Amenities</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {property.amenities && property.amenities.length > 0 ? (
@@ -558,6 +615,13 @@ const PropertyDetails = () => {
                   )}
                 </div>
               </CardContent>
+              <div className="absolute inset-0 flex items-center justify-center bg-white/90 rounded-lg">
+                <div className="text-center">
+                  <Clock className="h-8 w-8 text-gray-600 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-800">Coming Soon</p>
+                  <p className="text-xs text-gray-600">We'll notify you after the update</p>
+                </div>
+              </div>
             </Card>
 
             {/* House Rules */}
@@ -654,24 +718,23 @@ const PropertyDetails = () => {
                     <p className="text-gray-600">Property Host</p>
                   </div>
 
-                  {property.rating && (
-                    <div className="flex items-center justify-center space-x-1">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="font-medium">{property.rating}</span>
-                      <span className="text-gray-600">
-                        ({reviews.length} reviews)
-                      </span>
-                    </div>
-                  )}
+                  {/* ... keep existing code (rating) */}
 
                   <div className="space-y-2">
                     {!showHostInfo ? (
-                      <Button 
-                        onClick={handleRevealHostInfo}
-                        className="w-full bg-gradient-cool hover:opacity-90"
-                      >
-                        Reveal Host Info
-                      </Button>
+                      <div className="space-y-2">
+                        <Button 
+                          onClick={handleRevealHostInfo}
+                          className="w-full bg-gradient-cool hover:opacity-90"
+                        >
+                          Reveal Host Info
+                        </Button>
+                        <div className="bg-blue-50 p-3 rounded-lg">
+                          <p className="text-xs text-blue-700 text-center">
+                            You can still access host info. We'll notify you after the update.
+                          </p>
+                        </div>
+                      </div>
                     ) : (
                       <div className="space-y-2">
                         <a href="tel:+919876543210">
@@ -699,11 +762,7 @@ const PropertyDetails = () => {
                     )}
                   </div>
 
-                  <Link to={`/host/properties/${property.host_id}`}>
-                    <Button variant="ghost" className="w-full">
-                      View All Properties by Host
-                    </Button>
-                  </Link>
+                  {/* ... keep existing code (View All Properties by Host link) */}
                 </div>
               </CardContent>
             </Card>
@@ -732,14 +791,22 @@ const PropertyDetails = () => {
                 {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
               </Button>
               
-              {/* Enhanced Virtual Tour Button */}
-              <Button 
-                onClick={() => setShowVirtualTourModal(true)}
-                className="w-full bg-gradient-cool hover:opacity-90 text-white shadow-lg transform transition-all duration-200 hover:scale-105 hidden md:flex items-center justify-center animate-pulse"
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                Take Virtual Tour - 360°
-              </Button>
+              {/* Enhanced Virtual Tour Button - DISABLED */}
+              <div className="relative">
+                <Button 
+                  disabled
+                  className="w-full bg-gray-400 hover:bg-gray-400 text-white shadow-lg opacity-50 cursor-not-allowed hidden md:flex items-center justify-center"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Take Virtual Tour - 360°
+                </Button>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <Clock className="h-4 w-4 text-gray-600 mx-auto mb-1" />
+                    <p className="text-xs text-gray-600">Coming Soon</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
