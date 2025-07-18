@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,25 +14,51 @@ const Signup = () => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signup } = useAuth();
+  const { signup, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password || !name) {
+      toast({
+        title: "Missing fields",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       await signup(email, password, name, phone);
       toast({
         title: "Account created!",
-        description: "Welcome to FindMyPG. You can now explore properties.",
+        description: "Welcome to LookaroundPG. You can now explore properties.",
       });
       navigate('/');
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Signup failed",
-        description: "Please try again with different credentials.",
+        description: error.message || "Please try again with different credentials.",
         variant: "destructive",
       });
     } finally {
@@ -46,9 +72,9 @@ const Signup = () => {
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">PG</span>
+              <span className="text-white font-bold text-lg">L</span>
             </div>
-            <span className="font-bold text-xl text-charcoal dark:text-white">FindMyPG</span>
+            <span className="font-bold text-xl text-charcoal dark:text-white">LookaroundPG</span>
           </Link>
         </div>
 
@@ -64,7 +90,7 @@ const Signup = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="dark:text-white">Full Name</Label>
+                <Label htmlFor="name" className="dark:text-white">Full Name *</Label>
                 <Input
                   id="name"
                   type="text"
@@ -76,7 +102,7 @@ const Signup = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email" className="dark:text-white">Email</Label>
+                <Label htmlFor="email" className="dark:text-white">Email *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -99,16 +125,20 @@ const Signup = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="dark:text-white">Password</Label>
+                <Label htmlFor="password" className="dark:text-white">Password *</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Create a password"
+                  placeholder="Create a password (min. 6 characters)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={6}
                   className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                 />
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Password must be at least 6 characters long
+                </p>
               </div>
               <Button
                 type="submit"

@@ -27,7 +27,13 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (user) {
       const stored = localStorage.getItem(`wishlist_${user.id}`);
       if (stored) {
-        setWishlist(JSON.parse(stored));
+        try {
+          const parsedWishlist = JSON.parse(stored);
+          setWishlist(Array.isArray(parsedWishlist) ? parsedWishlist : []);
+        } catch (error) {
+          console.error('Error parsing wishlist from localStorage:', error);
+          setWishlist([]);
+        }
       }
     } else {
       setWishlist([]);
@@ -35,19 +41,29 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [user]);
 
   const addToWishlist = (propertyId: string) => {
-    if (!user) return;
+    if (!user) {
+      console.log('User not logged in, cannot add to wishlist');
+      return;
+    }
     
-    const newWishlist = [...wishlist, propertyId];
-    setWishlist(newWishlist);
-    localStorage.setItem(`wishlist_${user.id}`, JSON.stringify(newWishlist));
+    if (!wishlist.includes(propertyId)) {
+      const newWishlist = [...wishlist, propertyId];
+      setWishlist(newWishlist);
+      localStorage.setItem(`wishlist_${user.id}`, JSON.stringify(newWishlist));
+      console.log('Added to wishlist:', propertyId);
+    }
   };
 
   const removeFromWishlist = (propertyId: string) => {
-    if (!user) return;
+    if (!user) {
+      console.log('User not logged in, cannot remove from wishlist');
+      return;
+    }
     
     const newWishlist = wishlist.filter(id => id !== propertyId);
     setWishlist(newWishlist);
     localStorage.setItem(`wishlist_${user.id}`, JSON.stringify(newWishlist));
+    console.log('Removed from wishlist:', propertyId);
   };
 
   const isInWishlist = (propertyId: string) => {
