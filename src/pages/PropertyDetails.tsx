@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,15 @@ interface Property {
   updated_at: string;
 }
 
+interface Review {
+  id: string;
+  user_name: string;
+  user_avatar: string | null;
+  rating: number;
+  comment: string;
+  created_at: string;
+}
+
 const PropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -42,7 +52,9 @@ const PropertyDetails = () => {
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const { toast } = useToast();
   const [property, setProperty] = useState<Property | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showHostInfo, setShowHostInfo] = useState(false);
   const [selectedSharingType, setSelectedSharingType] = useState<'single' | 'double' | 'triple'>('single');
@@ -76,6 +88,7 @@ const PropertyDetails = () => {
   useEffect(() => {
     if (id) {
       fetchProperty();
+      fetchReviews();
     }
   }, [id]);
 
@@ -100,6 +113,47 @@ const PropertyDetails = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchReviews = async () => {
+    try {
+      setReviewsLoading(true);
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('property_id', id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching reviews:', error);
+        setReviews([]);
+      } else {
+        setReviews(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      setReviews([]);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 14) return '1 week ago';
+    if (diffDays < 21) return '2 weeks ago';
+    if (diffDays < 30) return '3 weeks ago';
+    if (diffDays < 60) return '1 month ago';
+    if (diffDays < 90) return '2 months ago';
+    if (diffDays < 120) return '3 months ago';
+    if (diffDays < 150) return '4 months ago';
+    return `${Math.floor(diffDays / 30)} months ago`;
   };
 
   if (loading) {
@@ -220,34 +274,6 @@ const PropertyDetails = () => {
     'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800',
     'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800',
     'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800'
-  ];
-
-  // Mock reviews data
-  const reviews = [
-    {
-      id: 1,
-      name: "Priya Sharma",
-      rating: 5,
-      date: "2 weeks ago",
-      comment: "Excellent PG with all amenities. The host is very responsive and the location is perfect for my office commute.",
-      avatar: "/placeholder.svg"
-    },
-    {
-      id: 2,
-      name: "Rahul Kumar",
-      rating: 4,
-      date: "1 month ago", 
-      comment: "Good facilities and clean rooms. WiFi speed could be better but overall satisfied with the stay.",
-      avatar: "/placeholder.svg"
-    },
-    {
-      id: 3,
-      name: "Sneha Patel",
-      rating: 5,
-      date: "2 months ago",
-      comment: "Amazing place! Feels like home. The food is delicious and the common areas are well maintained.",
-      avatar: "/placeholder.svg"
-    }
   ];
 
   return (
@@ -661,40 +687,53 @@ const PropertyDetails = () => {
                   )}
                 </div>
                 
-                <div className="space-y-6">
-                  {reviews.map((review) => (
-                    <div key={review.id} className="border-b border-gray-200 last:border-b-0 pb-6 last:pb-0">
-                      <div className="flex items-start space-x-4">
-                        <img
-                          src={`https://images.unsplash.com/photo-${1535713875002 + review.id * 1000}-d1a27596b850?w=150&h=150&fit=crop&crop=face`}
-                          alt={review.name}
-                          className="w-10 h-10 rounded-full bg-gray-200"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold">{review.name}</h4>
-                            <span className="text-sm text-gray-500">{review.date}</span>
+                {reviewsLoading ? (
+                  <div className="text-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
+                    <p className="text-gray-600">Loading reviews...</p>
+                  </div>
+                ) : reviews.length > 0 ? (
+                  <div className="space-y-6">
+                    {reviews.map((review) => (
+                      <div key={review.id} className="border-b border-gray-200 last:border-b-0 pb-6 last:pb-0">
+                        <div className="flex items-start space-x-4">
+                          <img
+                            src={review.user_avatar || `https://images.unsplash.com/photo-1535713875002-d1a27596b850?w=150&h=150&fit=crop&crop=face`}
+                            alt={review.user_name}
+                            className="w-10 h-10 rounded-full bg-gray-200"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-semibold">{review.user_name}</h4>
+                              <span className="text-sm text-gray-500">{formatDate(review.created_at)}</span>
+                            </div>
+                            <div className="flex items-center mb-2">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-4 w-4 ${
+                                    i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <p className="text-gray-600">{review.comment}</p>
                           </div>
-                          <div className="flex items-center mb-2">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <p className="text-gray-600">{review.comment}</p>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600">No reviews yet for this property.</p>
+                  </div>
+                )}
                 
-                <Button variant="outline" className="w-full mt-6">
-                  View All Reviews
-                </Button>
+                {reviews.length > 0 && (
+                  <Button variant="outline" className="w-full mt-6">
+                    View All Reviews
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -717,8 +756,6 @@ const PropertyDetails = () => {
                     <h3 className="font-semibold text-lg">{property.host_name}</h3>
                     <p className="text-gray-600">Property Host</p>
                   </div>
-
-                  {/* ... keep existing code (rating) */}
 
                   <div className="space-y-2">
                     {!showHostInfo ? (
@@ -761,8 +798,6 @@ const PropertyDetails = () => {
                       </div>
                     )}
                   </div>
-
-                  {/* ... keep existing code (View All Properties by Host link) */}
                 </div>
               </CardContent>
             </Card>
