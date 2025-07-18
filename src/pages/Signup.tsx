@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -67,30 +68,30 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-light-gray dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
+    <div className="min-h-screen flex items-center justify-center bg-light-gray py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">L</span>
             </div>
-            <span className="font-bold text-xl text-charcoal dark:text-white">LookaroundPG</span>
+            <span className="font-bold text-xl text-charcoal">LookaroundPG</span>
           </Link>
         </div>
 
-        <Card className="animate-scaleIn dark:bg-gray-800 dark:border-gray-700">
+        <Card className="animate-scaleIn">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center dark:text-white">
+            <CardTitle className="text-2xl font-bold text-center">
               Create your account
             </CardTitle>
-            <CardDescription className="text-center dark:text-gray-300">
+            <CardDescription className="text-center">
               Join thousands of users finding their perfect PG
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="dark:text-white">Full Name *</Label>
+                <Label htmlFor="name">Full Name *</Label>
                 <Input
                   id="name"
                   type="text"
@@ -98,11 +99,10 @@ const Signup = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email" className="dark:text-white">Email *</Label>
+                <Label htmlFor="email">Email *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -110,22 +110,20 @@ const Signup = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone" className="dark:text-white">Phone Number</Label>
+                <Label htmlFor="phone">Phone Number</Label>
                 <Input
                   id="phone"
                   type="tel"
                   placeholder="Enter your phone number"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="dark:text-white">Password *</Label>
+                <Label htmlFor="password">Password *</Label>
                 <Input
                   id="password"
                   type="password"
@@ -134,9 +132,8 @@ const Signup = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500">
                   Password must be at least 6 characters long
                 </p>
               </div>
@@ -150,7 +147,7 @@ const Signup = () => {
             </form>
 
             <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600">
                 Already have an account?{' '}
                 <Link to="/login" className="font-medium text-primary hover:text-primary/80">
                   Sign in
