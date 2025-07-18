@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -31,6 +30,7 @@ interface Property {
   rating: number | null;
   host_name: string;
   host_avatar: string | null;
+  host_phone: string | null;
   host_id: string;
   created_at: string;
   updated_at: string;
@@ -247,7 +247,7 @@ const PropertyDetails = () => {
     }
   };
 
-  // Pricing data based on sharing type with refundable deposit
+  // Pricing data based on sharing type with refundable deposit - BLURRED
   const pricingData = {
     single: { 
       price: property.price_single, 
@@ -447,13 +447,19 @@ const PropertyDetails = () => {
                     </div>
                   </div>
 
-                  {/* Price and Status */}
-                  <div className="flex items-center justify-between">
-                    <div>
+                  {/* Price and Status - BLURRED */}
+                  <div className="flex items-center justify-between relative">
+                    <div className="blur-sm">
                       <span className="text-3xl font-bold text-primary">
                         ₹{pricingData[selectedSharingType].price.toLocaleString()}
                       </span>
                       <span className="text-gray-600 ml-2">/month</span>
+                    </div>
+                    <div className="absolute left-0 top-0 flex items-center justify-center">
+                      <div className="text-center bg-white/80 rounded px-3 py-1">
+                        <Clock className="h-4 w-4 text-gray-600 mx-auto mb-1" />
+                        <p className="text-xs font-medium text-gray-800">Coming Soon</p>
+                      </div>
                     </div>
                     <Badge className="bg-success text-white">
                       {property.available ? 'Available' : 'Not Available'}
@@ -774,10 +780,10 @@ const PropertyDetails = () => {
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        <a href="tel:+919876543210">
+                        <a href={`tel:${property.host_phone}`}>
                           <Button variant="outline" className="w-full">
                             <Phone className="h-4 w-4 mr-2" />
-                            +91 9876543210
+                            {property.host_phone || '+91 90000 00000'}
                           </Button>
                         </a>
                         <a href="mailto:host@example.com">
@@ -787,7 +793,7 @@ const PropertyDetails = () => {
                           </Button>
                         </a>
                         <a 
-                          href="https://wa.me/919876543210"
+                          href={`https://wa.me/${property.host_phone?.replace(/[^\d]/g, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, MapPin, User, Star } from 'lucide-react';
+import { Heart, MapPin, User, Star, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
@@ -72,11 +72,16 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, className 
           )}
         </Link>
         
-        {/* Virtual Tour Badge */}
+        {/* Virtual Tour Badge - BLURRED */}
         {property.virtualTour && (
-          <Badge className="absolute top-3 left-3 bg-accent text-white">
-            360° Tour
-          </Badge>
+          <div className="absolute top-3 left-3 relative">
+            <Badge className="bg-accent text-white blur-sm opacity-50">
+              360° Tour
+            </Badge>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Clock className="h-3 w-3 text-gray-600" />
+            </div>
+          </div>
         )}
         
         {/* Wishlist Button */}
@@ -108,12 +113,20 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, className 
             </div>
           </div>
 
-          {/* Price */}
-          <div className="mb-3">
-            <span className="text-2xl font-bold text-primary">
-              ₹{property.price.toLocaleString()}
-            </span>
-            <span className="text-gray-600 text-sm ml-1">/month</span>
+          {/* Price - BLURRED */}
+          <div className="mb-3 relative">
+            <div className="blur-sm">
+              <span className="text-2xl font-bold text-primary">
+                ₹{property.price.toLocaleString()}
+              </span>
+              <span className="text-gray-600 text-sm ml-1">/month</span>
+            </div>
+            <div className="absolute left-0 top-0 flex items-center">
+              <div className="bg-white/80 rounded px-2 py-1 flex items-center">
+                <Clock className="h-3 w-3 text-gray-600 mr-1" />
+                <span className="text-xs font-medium text-gray-800">Soon</span>
+              </div>
+            </div>
           </div>
 
           {/* Gender Preference */}

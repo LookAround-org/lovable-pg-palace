@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Filter, SlidersHorizontal, MapPin, Loader2 } from 'lucide-react';
+import { Filter, SlidersHorizontal, MapPin, Loader2, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -80,6 +80,27 @@ const Explore = () => {
     { value: 'chennai', label: 'Chennai', available: false }
   ];
 
+  // Extract area names from location strings
+  const extractAreaName = (location: string) => {
+    // Common patterns for extracting area names
+    const patterns = [
+      /^([^,]+)/, // Everything before first comma
+      /(\w+\s*\w*)\s*,/, // Word(s) before comma
+      /^([\w\s]+?)(?:\s*-|\s*,)/, // Everything before dash or comma
+    ];
+    
+    for (const pattern of patterns) {
+      const match = location.match(pattern);
+      if (match && match[1]) {
+        return match[1].trim();
+      }
+    }
+    
+    // Fallback: return first two words
+    const words = location.split(/[\s,]+/);
+    return words.slice(0, 2).join(' ');
+  };
+
   useEffect(() => {
     fetchProperties();
   }, []);
@@ -124,24 +145,27 @@ const Explore = () => {
       return;
     }
 
-    // Search filter
+    // Search filter - search in both title and extracted area name
     if (searchTerm) {
-      filtered = filtered.filter(property =>
-        property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.location.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      filtered = filtered.filter(property => {
+        const areaName = extractAreaName(property.location);
+        return property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+               property.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+               areaName.toLowerCase().includes(searchTerm.toLowerCase());
+      });
     }
 
-    // Price filter
-    filtered = filtered.filter(property =>
-      property.price_single >= priceRange[0] && property.price_single <= priceRange[1]
-    );
+    // Price filter - DISABLED
+    // filtered = filtered.filter(property =>
+    //   property.price_single >= priceRange[0] && property.price_single <= priceRange[1]
+    // );
 
-    // Location filter
+    // Location filter - use extracted area names
     if (selectedLocation !== 'all') {
-      filtered = filtered.filter(property =>
-        property.location.toLowerCase().includes(selectedLocation.toLowerCase())
-      );
+      filtered = filtered.filter(property => {
+        const areaName = extractAreaName(property.location);
+        return areaName.toLowerCase().includes(selectedLocation.toLowerCase());
+      });
     }
 
     // Type filter
@@ -173,14 +197,15 @@ const Explore = () => {
     }
   };
 
-  const locations = [...new Set(properties.map(p => p.location))];
+  // Get unique area names for location filter
+  const locations = [...new Set(properties.map(p => extractAreaName(p.location)))];
 
   // Transform database property to PropertyCard format
   const transformProperty = (property: DatabaseProperty): PropertyCardProps => ({
     id: property.id,
     title: property.title,
     description: property.description,
-    location: property.location,
+    location: extractAreaName(property.location),
     price: property.price_single,
     property_type: property.property_type,
     sharing_type: property.sharing_type,
@@ -292,33 +317,41 @@ const Explore = () => {
                     </Select>
                   </div>
 
-                  {/* Price Range */}
-                  <div className="mb-6">
-                    <h4 className="font-medium mb-3">Price Range</h4>
-                    <Slider
-                      value={priceRange}
-                      onValueChange={setPriceRange}
-                      min={5000}
-                      max={30000}
-                      step={1000}
-                      className="mb-2"
-                      disabled={selectedCity !== 'bangalore'}
-                    />
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>₹{priceRange[0].toLocaleString()}</span>
-                      <span>₹{priceRange[1].toLocaleString()}</span>
+                  {/* Price Range - DISABLED */}
+                  <div className="mb-6 relative">
+                    <div className="blur-sm">
+                      <h4 className="font-medium mb-3">Price Range</h4>
+                      <Slider
+                        value={priceRange}
+                        onValueChange={setPriceRange}
+                        min={5000}
+                        max={30000}
+                        step={1000}
+                        className="mb-2"
+                        disabled={true}
+                      />
+                      <div className="flex justify-between text-sm text-gray-600">
+                        <span>₹{priceRange[0].toLocaleString()}</span>
+                        <span>₹{priceRange[1].toLocaleString()}</span>
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
+                      <div className="text-center">
+                        <Clock className="h-6 w-6 text-gray-600 mx-auto mb-1" />
+                        <p className="text-xs font-medium text-gray-800">Coming Soon</p>
+                      </div>
                     </div>
                   </div>
 
                   {/* Location */}
                   <div className="mb-6">
-                    <h4 className="font-medium mb-3">Location</h4>
+                    <h4 className="font-medium mb-3">Area</h4>
                     <Select value={selectedLocation} onValueChange={setSelectedLocation} disabled={selectedCity !== 'bangalore'}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All Locations</SelectItem>
+                        <SelectItem value="all">All Areas</SelectItem>
                         {locations.map(location => (
                           <SelectItem key={location} value={location}>{location}</SelectItem>
                         ))}
