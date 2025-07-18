@@ -24,6 +24,8 @@ const propertySchema = z.object({
   sharing_type: z.string().default('shared'),
   move_in: z.string().default('Immediate'),
   host_name: z.string().min(1, 'Host name is required'),
+  featured: z.boolean().default(false),
+  trending: z.boolean().default(false),
 });
 
 type PropertyFormData = z.infer<typeof propertySchema>;
@@ -55,6 +57,8 @@ export const AddPropertyForm: React.FC<AddPropertyFormProps> = ({ onSuccess, onC
     rating: 5,
     date: new Date().toISOString().split('T')[0]
   }]);
+  const [isFeatured, setIsFeatured] = useState(false);
+  const [isTrending, setIsTrending] = useState(false);
 
   const form = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
@@ -69,6 +73,8 @@ export const AddPropertyForm: React.FC<AddPropertyFormProps> = ({ onSuccess, onC
       sharing_type: 'shared',
       move_in: 'Immediate',
       host_name: '',
+      featured: false,
+      trending: false,
     },
   });
 
@@ -151,6 +157,8 @@ export const AddPropertyForm: React.FC<AddPropertyFormProps> = ({ onSuccess, onC
         views: 0,
         rating: null,
         host_avatar: null,
+        featured: isFeatured,
+        trending: isTrending,
       };
 
       const { data: insertedProperty, error } = await supabase
@@ -344,6 +352,34 @@ export const AddPropertyForm: React.FC<AddPropertyFormProps> = ({ onSuccess, onC
             {form.formState.errors.host_name && (
               <p className="text-sm text-red-500">{form.formState.errors.host_name.message}</p>
             )}
+          </div>
+
+          <div className="space-y-4">
+            <Label>Property Visibility</Label>
+            <div className="flex flex-col space-y-3">
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="featured"
+                  checked={isFeatured}
+                  onCheckedChange={(checked) => setIsFeatured(checked as boolean)}
+                />
+                <Label htmlFor="featured" className="text-sm font-medium">
+                  Featured Property
+                </Label>
+                <span className="text-xs text-gray-500">(Show in featured section on home page)</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="trending"
+                  checked={isTrending}
+                  onCheckedChange={(checked) => setIsTrending(checked as boolean)}
+                />
+                <Label htmlFor="trending" className="text-sm font-medium">
+                  Trending Property
+                </Label>
+                <span className="text-xs text-gray-500">(Show in trending section on home page)</span>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-4">

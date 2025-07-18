@@ -20,6 +20,7 @@ export type Database = {
           available: boolean
           created_at: string
           description: string | null
+          featured: boolean
           host_avatar: string | null
           host_id: string
           host_name: string
@@ -34,6 +35,7 @@ export type Database = {
           rating: number | null
           sharing_type: string
           title: string
+          trending: boolean
           updated_at: string
           views: number
         }
@@ -42,6 +44,7 @@ export type Database = {
           available?: boolean
           created_at?: string
           description?: string | null
+          featured?: boolean
           host_avatar?: string | null
           host_id: string
           host_name: string
@@ -56,6 +59,7 @@ export type Database = {
           rating?: number | null
           sharing_type?: string
           title: string
+          trending?: boolean
           updated_at?: string
           views?: number
         }
@@ -64,6 +68,7 @@ export type Database = {
           available?: boolean
           created_at?: string
           description?: string | null
+          featured?: boolean
           host_avatar?: string | null
           host_id?: string
           host_name?: string
@@ -78,6 +83,7 @@ export type Database = {
           rating?: number | null
           sharing_type?: string
           title?: string
+          trending?: boolean
           updated_at?: string
           views?: number
         }
