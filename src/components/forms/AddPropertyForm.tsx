@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Plus, X } from 'lucide-react';
+import { Loader2, Plus, X, Star } from 'lucide-react';
 
 const propertySchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -29,6 +28,13 @@ const propertySchema = z.object({
 
 type PropertyFormData = z.infer<typeof propertySchema>;
 
+interface Review {
+  user_name: string;
+  comment: string;
+  rating: number;
+  date: string;
+}
+
 interface AddPropertyFormProps {
   onSuccess: () => void;
   onCancel: () => void;
@@ -43,6 +49,12 @@ export const AddPropertyForm: React.FC<AddPropertyFormProps> = ({ onSuccess, onC
   const [isLoading, setIsLoading] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>(['']);
+  const [reviews, setReviews] = useState<Review[]>([{
+    user_name: '',
+    comment: '',
+    rating: 5,
+    date: new Date().toISOString().split('T')[0]
+  }]);
 
   const form = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
@@ -72,6 +84,25 @@ export const AddPropertyForm: React.FC<AddPropertyFormProps> = ({ onSuccess, onC
     const newImages = [...images];
     newImages[index] = value;
     setImages(newImages);
+  };
+
+  const addReview = () => {
+    setReviews([...reviews, {
+      user_name: '',
+      comment: '',
+      rating: 5,
+      date: new Date().toISOString().split('T')[0]
+    }]);
+  };
+
+  const removeReview = (index: number) => {
+    setReviews(reviews.filter((_, i) => i !== index));
+  };
+
+  const updateReview = (index: number, field: keyof Review, value: string | number) => {
+    const newReviews = [...reviews];
+    newReviews[index] = { ...newReviews[index], [field]: value };
+    setReviews(newReviews);
   };
 
   const handleAmenityChange = (amenity: string, checked: boolean) => {
@@ -122,13 +153,49 @@ export const AddPropertyForm: React.FC<AddPropertyFormProps> = ({ onSuccess, onC
         host_avatar: null,
       };
 
-      const { error } = await supabase
+      const { data: insertedProperty, error } = await supabase
         .from('properties')
-        .insert(propertyData);
+        .insert(propertyData)
+        .select()
+        .single();
 
       if (error) {
         console.error('Supabase error:', error);
         throw error;
+      }
+
+      // Add reviews if any are provided
+      const validReviews = reviews.filter(review => 
+        review.user_name.trim() !== '' && review.comment.trim() !== ''
+      );
+
+      if (validReviews.length > 0 && insertedProperty) {
+        const reviewsData = validReviews.map(review => ({
+          property_id: insertedProperty.id,
+          user_id: user.id, // Using current user as reviewer for now
+          user_name: review.user_name,
+          user_avatar: null,
+          rating: review.rating,
+          comment: review.comment,
+          created_at: new Date(review.date).toISOString(),
+        }));
+
+        const { error: reviewsError } = await supabase
+          .from('reviews')
+          .insert(reviewsData);
+
+        if (reviewsError) {
+          console.error('Error adding reviews:', reviewsError);
+          // Don't fail the entire operation if reviews fail
+        } else {
+          // Update property rating based on average of reviews
+          const avgRating = validReviews.reduce((sum, review) => sum + review.rating, 0) / validReviews.length;
+          
+          await supabase
+            .from('properties')
+            .update({ rating: Math.round(avgRating * 10) / 10 })
+            .eq('id', insertedProperty.id);
+        }
       }
 
       toast({
@@ -323,6 +390,81 @@ export const AddPropertyForm: React.FC<AddPropertyFormProps> = ({ onSuccess, onC
                     </Button>
                   )}
                 </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label>Initial Reviews (Optional)</Label>
+              <Button type="button" onClick={addReview} size="sm" variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Review
+              </Button>
+            </div>
+            <div className="space-y-4">
+              {reviews.map((review, index) => (
+                <Card key={index} className="p-4 border-dashed">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Reviewer Name</Label>
+                      <Input
+                        value={review.user_name}
+                        onChange={(e) => updateReview(index, 'user_name', e.target.value)}
+                        placeholder="Enter reviewer name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Review Date</Label>
+                      <Input
+                        type="date"
+                        value={review.date}
+                        onChange={(e) => updateReview(index, 'date', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 mt-4">
+                    <Label>Rating</Label>
+                    <div className="flex items-center space-x-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => updateReview(index, 'rating', star)}
+                          className={`p-1 ${star <= review.rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                        >
+                          <Star className="h-5 w-5 fill-current" />
+                        </button>
+                      ))}
+                      <span className="text-sm text-gray-600 ml-2">({review.rating} stars)</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mt-4">
+                    <Label>Review Comment</Label>
+                    <Textarea
+                      value={review.comment}
+                      onChange={(e) => updateReview(index, 'comment', e.target.value)}
+                      placeholder="Enter review comment..."
+                      rows={3}
+                    />
+                  </div>
+
+                  {reviews.length > 1 && (
+                    <div className="flex justify-end mt-4">
+                      <Button
+                        type="button"
+                        onClick={() => removeReview(index)}
+                        size="sm"
+                        variant="outline"
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Remove Review
+                      </Button>
+                    </div>
+                  )}
+                </Card>
               ))}
             </div>
           </div>
