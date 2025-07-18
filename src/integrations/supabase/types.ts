@@ -24,6 +24,7 @@ export type Database = {
           host_avatar: string | null
           host_id: string
           host_name: string
+          host_phone: string | null
           id: string
           images: string[] | null
           location: string
@@ -48,6 +49,7 @@ export type Database = {
           host_avatar?: string | null
           host_id: string
           host_name: string
+          host_phone?: string | null
           id?: string
           images?: string[] | null
           location: string
@@ -72,6 +74,7 @@ export type Database = {
           host_avatar?: string | null
           host_id?: string
           host_name?: string
+          host_phone?: string | null
           id?: string
           images?: string[] | null
           location?: string
