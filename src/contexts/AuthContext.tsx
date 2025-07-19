@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
         console.log('User metadata:', session?.user?.user_metadata);
-        console.log('Raw user metadata:', session?.user?.raw_user_meta_data);
+        console.log('App metadata:', session?.user?.app_metadata);
         setSession(session);
         setUser(session?.user ? transformSupabaseUser(session.user) : null);
         setIsLoading(false);
@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('Initial session:', session?.user?.email);
       console.log('Initial user metadata:', session?.user?.user_metadata);
-      console.log('Initial raw user metadata:', session?.user?.raw_user_meta_data);
+      console.log('Initial app metadata:', session?.user?.app_metadata);
       setSession(session);
       setUser(session?.user ? transformSupabaseUser(session.user) : null);
       setIsLoading(false);
@@ -62,16 +62,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const transformSupabaseUser = (supabaseUser: SupabaseUser): User => {
-    // Try both user_metadata and raw_user_meta_data for compatibility
+    // Use user_metadata which contains the signup data
     const metadata = supabaseUser.user_metadata || {};
-    const rawMetadata = supabaseUser.raw_user_meta_data || {};
     
     return {
       id: supabaseUser.id,
       email: supabaseUser.email || '',
-      name: metadata.full_name || rawMetadata.full_name || metadata.name || rawMetadata.name || supabaseUser.email?.split('@')[0] || 'User',
-      phone: metadata.phone || rawMetadata.phone || metadata.phone_number || rawMetadata.phone_number,
-      avatar: metadata.avatar_url || rawMetadata.avatar_url,
+      name: metadata.full_name || metadata.name || supabaseUser.email?.split('@')[0] || 'User',
+      phone: metadata.phone || metadata.phone_number,
+      avatar: metadata.avatar_url,
     };
   };
 
