@@ -104,17 +104,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const redirectUrl = `${window.location.origin}/`;
       
+      // Create the metadata object with all user information
+      const userMetadata = {
+        full_name: name,
+        name: name,
+        ...(phone && { phone: phone, phone_number: phone })
+      };
+
+      console.log('Signing up with metadata:', userMetadata);
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: redirectUrl,
-          data: {
-            full_name: name,
-            name: name,
-            phone: phone,
-            phone_number: phone,
-          },
+          data: userMetadata,
         },
       });
       
