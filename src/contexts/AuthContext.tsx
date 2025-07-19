@@ -40,6 +40,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
+        console.log('User metadata:', session?.user?.user_metadata);
+        console.log('Raw user metadata:', session?.user?.raw_user_meta_data);
         setSession(session);
         setUser(session?.user ? transformSupabaseUser(session.user) : null);
         setIsLoading(false);
@@ -49,6 +51,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('Initial session:', session?.user?.email);
+      console.log('Initial user metadata:', session?.user?.user_metadata);
+      console.log('Initial raw user metadata:', session?.user?.raw_user_meta_data);
       setSession(session);
       setUser(session?.user ? transformSupabaseUser(session.user) : null);
       setIsLoading(false);
@@ -58,12 +62,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const transformSupabaseUser = (supabaseUser: SupabaseUser): User => {
+    // Try both user_metadata and raw_user_meta_data for compatibility
+    const metadata = supabaseUser.user_metadata || {};
+    const rawMetadata = supabaseUser.raw_user_meta_data || {};
+    
     return {
       id: supabaseUser.id,
       email: supabaseUser.email || '',
-      name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'User',
-      phone: supabaseUser.user_metadata?.phone,
-      avatar: supabaseUser.user_metadata?.avatar_url,
+      name: metadata.full_name || rawMetadata.full_name || metadata.name || rawMetadata.name || supabaseUser.email?.split('@')[0] || 'User',
+      phone: metadata.phone || rawMetadata.phone || metadata.phone_number || rawMetadata.phone_number,
+      avatar: metadata.avatar_url || rawMetadata.avatar_url,
     };
   };
 
@@ -103,8 +111,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            name,
-            phone,
+            full_name: name,
+            name: name,
+            phone: phone,
+            phone_number: phone,
           },
         },
       });
@@ -114,6 +124,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       console.log('Signup successful:', data.user?.email);
+      console.log('Signup user metadata:', data.user?.user_metadata);
     } catch (error: any) {
       console.error('Signup error:', error);
       throw new Error(error.message || 'Signup failed');
