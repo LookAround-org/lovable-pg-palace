@@ -65,11 +65,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Use user_metadata which contains the signup data
     const metadata = supabaseUser.user_metadata || {};
     
+    console.log('Transforming user with metadata:', metadata);
+    
     return {
       id: supabaseUser.id,
       email: supabaseUser.email || '',
       name: metadata.full_name || metadata.name || supabaseUser.email?.split('@')[0] || 'User',
-      phone: metadata.phone || metadata.phone_number,
+      phone: metadata.phone || metadata.phone_number || undefined,
       avatar: metadata.avatar_url,
     };
   };
@@ -87,6 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       console.log('Login successful:', data.user?.email);
+      console.log('Login user metadata:', data.user?.user_metadata);
     } catch (error: any) {
       console.error('Login error:', error);
       throw new Error(error.message || 'Login failed');
@@ -108,7 +111,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userMetadata = {
         full_name: name,
         name: name,
-        ...(phone && { phone: phone, phone_number: phone })
+        ...(phone && { 
+          phone: phone, 
+          phone_number: phone 
+        })
       };
 
       console.log('Signing up with metadata:', userMetadata);
@@ -128,6 +134,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       console.log('Signup successful:', data.user?.email);
       console.log('Signup user metadata:', data.user?.user_metadata);
+      
+      // If phone number was provided, also try to update the auth user's phone field
+      if (phone && data.user) {
+        console.log('Attempting to update phone field...');
+        try {
+          const { error: updateError } = await supabase.auth.updateUser({
+            phone: phone
+          });
+          
+          if (updateError) {
+            console.log('Phone update error (this is expected if SMS auth is not enabled):', updateError);
+          } else {
+            console.log('Phone field updated successfully');
+          }
+        } catch (updateErr) {
+          console.log('Phone update failed (this is expected if SMS auth is not enabled):', updateErr);
+        }
+      }
     } catch (error: any) {
       console.error('Signup error:', error);
       throw new Error(error.message || 'Signup failed');
