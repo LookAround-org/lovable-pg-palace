@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,8 +6,22 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { usePageSEO } from '@/hooks/useSEO';
 
 const Signup = () => {
+  usePageSEO(
+    'Sign Up - Create Your Account',
+    'Create your FindMyPG account to discover safe and affordable paying guest accommodations. Join thousands of users finding their perfect PG.',
+    'signup, create account, register, PG booking, student accommodation',
+    undefined,
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Sign Up - FindMyPG",
+      "description": "Create your account to start finding your perfect PG accommodation"
+    }
+  );
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -70,92 +83,111 @@ const Signup = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-light-gray py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
+        <header className="text-center">
+          <Link to="/" className="flex items-center justify-center space-x-2 mb-8" aria-label="FindMyPG Home">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">L</span>
             </div>
             <span className="font-bold text-xl text-charcoal">LookaroundPG</span>
           </Link>
-        </div>
+        </header>
 
-        <Card className="animate-scaleIn">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">
-              Create your account
-            </CardTitle>
-            <CardDescription className="text-center">
-              Join thousands of users finding their perfect PG
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name *</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Enter your full name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="Enter your phone number"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password *</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Create a password (min. 6 characters)"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                />
-                <p className="text-xs text-gray-500">
-                  Password must be at least 6 characters long
+        <main>
+          <Card className="animate-scaleIn">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl font-bold text-center">
+                Create your account
+              </CardTitle>
+              <CardDescription className="text-center">
+                Join thousands of users finding their perfect PG
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name *</Label>
+                  <Input
+                    id="name"
+                    name="fullname"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    aria-describedby="name-error"
+                    autoComplete="name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    aria-describedby="email-error"
+                    autoComplete="email"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    autoComplete="tel"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password *</Label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="Create a password (min. 6 characters)"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    aria-describedby="password-help"
+                    autoComplete="new-password"
+                  />
+                  <p id="password-help" className="text-xs text-gray-500">
+                    Password must be at least 6 characters long
+                  </p>
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading}
+                  aria-describedby={isLoading ? "loading-status" : undefined}
+                >
+                  {isLoading ? 'Creating account...' : 'Create account'}
+                </Button>
+                {isLoading && (
+                  <span id="loading-status" className="sr-only">
+                    Account creation in progress
+                  </span>
+                )}
+              </form>
+
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  Already have an account?{' '}
+                  <Link to="/login" className="font-medium text-primary hover:text-primary/80">
+                    Sign in
+                  </Link>
                 </p>
               </div>
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Creating account...' : 'Create account'}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Already have an account?{' '}
-                <Link to="/login" className="font-medium text-primary hover:text-primary/80">
-                  Sign in
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </main>
       </div>
     </div>
   );
