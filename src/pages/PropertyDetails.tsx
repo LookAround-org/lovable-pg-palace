@@ -1,14 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { MapPin, Heart, User, Star, Phone, Mail, ArrowLeft, Eye, Calendar, Users, Home, Play, Loader2, Utensils, Sofa, Car, Train, ShoppingBag, Hospital, Clock, Shield, Wifi, Camera, MessageCircle, MapIcon, Navigation } from 'lucide-react';
+import { MapPin, Heart, Star, Phone, Mail, ArrowLeft, Users, Home, Loader2, Utensils, Sofa, Car, Train, ShoppingBag, Hospital, Shield, Wifi, Camera, MessageCircle, MapIcon, Navigation, Grid3X3, Share, Calendar, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useToast } from '@/hooks/use-toast';
@@ -59,41 +59,24 @@ const PropertyDetails = () => {
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showHostInfo, setShowHostInfo] = useState(false);
-  const [selectedSharingType, setSelectedSharingType] = useState<'single' | 'double' | 'triple'>('single');
   const [showTermsDialog, setShowTermsDialog] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [showVirtualTourModal, setShowVirtualTourModal] = useState(false);
+  const [showAllPhotos, setShowAllPhotos] = useState(false);
 
   // Enhanced data for new features
   const propertyFeatures = {
-    foodIncluded: true,
-    furnishing: 'Fully Furnished',
-    furniture: [
-      'Single Bed with Premium Mattress',
-      'Ergonomic Study Table & Chair',
-      'Spacious Wardrobe',
-      'Bedside Table with Drawer',
-      'Full-Length Mirror',
-      'High-Speed Ceiling Fan',
-      'Blackout Window Curtains',
-      'Reading Lamp'
+    amenities: [
+      { icon: Wifi, name: 'Free WiFi' },
+      { icon: Car, name: 'Free parking' },
+      { icon: Utensils, name: 'Kitchen' },
+      { icon: Sofa, name: 'Living area' },
     ],
     nearbyFacilities: [
-      { name: 'Metro Station', distance: '0.5 km', icon: Train, time: '5 min walk', color: 'text-blue-600' },
-      { name: 'Shopping Mall', distance: '2 km', icon: ShoppingBag, time: '15 min drive', color: 'text-purple-600' },
-      { name: 'Multi-Specialty Hospital', distance: '1.5 km', icon: Hospital, time: '10 min drive', color: 'text-red-600' },
-      { name: 'Bus Stop', distance: '200 m', icon: Car, time: '2 min walk', color: 'text-green-600' },
-      { name: 'ATM & Bank', distance: '300 m', icon: MapPin, time: '3 min walk', color: 'text-yellow-600' },
-      { name: 'Supermarket', distance: '500 m', icon: ShoppingBag, time: '5 min walk', color: 'text-indigo-600' }
+      { name: 'Metro Station', distance: '0.5 km', icon: Train, time: '5 min walk' },
+      { name: 'Shopping Mall', distance: '2 km', icon: ShoppingBag, time: '15 min drive' },
+      { name: 'Hospital', distance: '1.5 km', icon: Hospital, time: '10 min drive' },
+      { name: 'Bus Stop', distance: '200 m', icon: Car, time: '2 min walk' },
     ],
-    safetyFeatures: [
-      'CCTV Surveillance',
-      '24/7 Security Guard',
-      'Biometric Entry',
-      'Well-lit Premises',
-      'Emergency Contact System',
-      'Fire Safety Equipment'
-    ]
   };
 
   useEffect(() => {
@@ -157,25 +140,16 @@ const PropertyDetails = () => {
 
     if (diffDays === 1) return '1 day ago';
     if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 14) return '1 week ago';
-    if (diffDays < 21) return '2 weeks ago';
-    if (diffDays < 30) return '3 weeks ago';
-    if (diffDays < 60) return '1 month ago';
-    if (diffDays < 90) return '2 months ago';
-    if (diffDays < 120) return '3 months ago';
-    if (diffDays < 150) return '4 months ago';
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
     return `${Math.floor(diffDays / 30)} months ago`;
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="relative">
-            <div className="w-20 h-20 border-4 border-blue-200 rounded-full animate-pulse"></div>
-            <Loader2 className="h-8 w-8 animate-spin absolute top-6 left-6 text-blue-600" />
-          </div>
-          <p className="text-gray-600 mt-4 font-medium">Loading amazing property details...</p>
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-gray-600" />
+          <p className="text-gray-600">Loading property details...</p>
         </div>
       </div>
     );
@@ -183,16 +157,14 @@ const PropertyDetails = () => {
 
   if (!property) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <div className="text-center bg-white p-8 rounded-2xl shadow-lg">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Home className="h-8 w-8 text-gray-400" />
-          </div>
-          <h1 className="text-2xl font-bold mb-4 text-gray-800">Property not found</h1>
-          <p className="text-gray-600 mb-6">The property you're looking for might have been removed or doesn't exist.</p>
-          <Button onClick={() => navigate('/explore')} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Home className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+          <h1 className="text-2xl font-semibold mb-4">Property not found</h1>
+          <p className="text-gray-600 mb-6">The property you're looking for doesn't exist.</p>
+          <Button onClick={() => navigate('/explore')} variant="outline">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Explore
+            Back to Properties
           </Button>
         </div>
       </div>
@@ -257,28 +229,6 @@ const PropertyDetails = () => {
     });
   };
 
-  // Pricing data based on sharing type
-  const pricingData = {
-    single: { 
-      price: property.price_single, 
-      deposit: 5000, 
-      refundableDeposit: 4000,
-      maintenance: 1000 
-    },
-    double: { 
-      price: property.price_double, 
-      deposit: 4000, 
-      refundableDeposit: 3200,
-      maintenance: 800 
-    },
-    triple: { 
-      price: property.price_triple, 
-      deposit: 3000, 
-      refundableDeposit: 2500,
-      maintenance: 600 
-    }
-  };
-
   // Enhanced image data
   const propertyImages = property.images && property.images.length > 0 ? property.images : [
     'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800',
@@ -288,553 +238,387 @@ const PropertyDetails = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Enhanced Header */}
-        <div className="flex justify-between items-center mb-8">
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <div className="sticky top-0 z-50 bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto py-4 flex items-center justify-between">
           <Button 
             variant="ghost" 
             onClick={() => navigate(-1)}
-            className="hover:bg-white hover:shadow-md transition-all duration-200"
+            className="p-2 hover:bg-gray-100 rounded-full"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Properties
+            <ArrowLeft className="h-5 w-5" />
           </Button>
           
-          {/* Enhanced Virtual Tour Button - Mobile */}
-          <div className="relative md:hidden">
-            <Button 
-              disabled
-              className="bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 text-white shadow-lg opacity-60 cursor-not-allowed"
-              size="sm"
-            >
-              <Camera className="h-4 w-4 mr-2" />
-              360° Tour
+          <div className="flex items-center space-x-2">
+            <Button variant="ghost" size="sm" className="text-gray-600">
+              <Share className="h-4 w-4 mr-2" />
+              Share
             </Button>
-            <div className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
-              Soon
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={handleWishlistToggle}
+              className="text-gray-600"
+            >
+              <Heart className={`h-4 w-4 mr-2 ${isInWishlist ? 'fill-red-500 text-red-500' : ''}`} />
+              Save
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Title Section */}
+        <div className="mb-6">
+          <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">
+            {property.title}
+          </h1>
+          <div className="flex items-center text-gray-600 mb-4">
+            {property.rating && (
+              <div className="flex items-center mr-4">
+                <Star className="h-4 w-4 text-black fill-current mr-1" />
+                <span className="font-medium text-black">{property.rating}</span>
+                <span className="mx-1">·</span>
+                <button className="underline font-medium text-black">
+                  {reviews.length} reviews
+                </button>
+              </div>
+            )}
+            <div className="flex items-center">
+              <MapPin className="h-4 w-4 mr-1" />
+              <button className="underline font-medium text-black">
+                {property.location}
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-          {/* Main Content - Spans 3 columns */}
-          <div className="xl:col-span-3 space-y-8">
+        {/* Image Gallery */}
+        <div className="mb-8">
+          <div className="grid grid-cols-4 gap-2 rounded-xl overflow-hidden h-[60vh] max-h-[500px]">
+            {/* Main Image */}
+            <div className="col-span-4 md:col-span-2 relative">
+              <img
+                src={propertyImages[0] || '/placeholder.svg'}
+                alt={property.title}
+                className="w-full h-full object-cover cursor-pointer"
+                onClick={() => setShowAllPhotos(true)}
+              />
+            </div>
             
-            {/* Enhanced Image Gallery */}
-            <Card className="overflow-hidden shadow-xl bg-white">
-              <AspectRatio ratio={16 / 9}>
-                <div className="relative w-full h-full group">
+            {/* Side Images - Hidden on Mobile */}
+            <div className="hidden md:grid col-span-2 grid-cols-2 gap-2">
+              {propertyImages.slice(1, 5).map((image, index) => (
+                <div key={index} className="relative">
                   <img
-                    src={propertyImages[currentImageIndex] || '/placeholder.svg'}
-                    alt={property.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    src={image || '/placeholder.svg'}
+                    alt={`${property.title} ${index + 2}`}
+                    className="w-full h-full object-cover cursor-pointer"
+                    onClick={() => setShowAllPhotos(true)}
                   />
-                  
-                  {/* Enhanced Overlay Badges */}
-                  <div className="absolute top-4 left-4 flex flex-col space-y-2">
-                    <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg">
-                      <Eye className="h-3 w-3 mr-1" />
-                      {property.views} views
-                    </Badge>
-                    {propertyFeatures.foodIncluded && (
-                      <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg">
-                        <Utensils className="h-3 w-3 mr-1" />
-                        Meals Included
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  {/* Enhanced Wishlist Button */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`absolute top-4 right-4 p-3 h-12 w-12 bg-white/90 hover:bg-white shadow-lg transition-all duration-200 ${
-                      isInWishlist ? 'text-red-500 bg-red-50' : 'text-gray-600'
-                    }`}
-                    onClick={handleWishlistToggle}
-                  >
-                    <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-current' : ''}`} />
-                  </Button>
-                  
-                  {/* Enhanced Navigation */}
-                  {propertyImages.length > 1 && (
-                    <>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg w-12 h-12 rounded-full"
-                        onClick={() => setCurrentImageIndex(
-                          currentImageIndex === 0 ? propertyImages.length - 1 : currentImageIndex - 1
-                        )}
-                      >
-                        <ArrowLeft className="h-5 w-5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg w-12 h-12 rounded-full"
-                        onClick={() => setCurrentImageIndex(
-                          currentImageIndex === propertyImages.length - 1 ? 0 : currentImageIndex + 1
-                        )}
-                      >
-                        <ArrowLeft className="h-5 w-5 rotate-180" />
-                      </Button>
-                      
-                      {/* Enhanced Image Indicators */}
-                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                        {propertyImages.map((_, index) => (
-                          <button
-                            key={index}
-                            className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                              index === currentImageIndex 
-                                ? 'bg-white shadow-lg scale-125' 
-                                : 'bg-white/60 hover:bg-white/80'
-                            }`}
-                            onClick={() => setCurrentImageIndex(index)}
-                          />
-                        ))}
+                  {index === 3 && propertyImages.length > 5 && (
+                    <div 
+                      className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center cursor-pointer"
+                      onClick={() => setShowAllPhotos(true)}
+                    >
+                      <div className="text-white text-center">
+                        <Grid3X3 className="h-6 w-6 mx-auto mb-2" />
+                        <span className="font-medium">Show all photos</span>
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
-              </AspectRatio>
-            </Card>
+              ))}
+            </div>
 
-            {/* Enhanced Property Header */}
-            <Card className="shadow-lg bg-white">
-              <CardContent className="p-8">
-                <div className="space-y-6">
-                  {/* Title and Location */}
-                  <div>
-                    <h1 className="text-4xl font-bold text-gray-900 mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      {property.title}
-                    </h1>
-                    <div className="flex items-center text-gray-600 text-lg">
-                      <MapPin className="h-5 w-5 mr-2 text-blue-500" />
-                      <span>{property.location}</span>
+            {/* Mobile Show All Photos Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="md:hidden absolute bottom-4 right-4 bg-white"
+              onClick={() => setShowAllPhotos(true)}
+            >
+              <Grid3X3 className="h-4 w-4 mr-2" />
+              Show all photos
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            {/* Property Info */}
+            <div className="border-b border-gray-200 pb-8 mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    Entire {property.property_type} in {property.location.split(',')[0]}
+                  </h2>
+                  <p className="text-gray-600">
+                    3 guests · 1 bedroom · 2 beds · 1 bathroom
+                  </p>
+                </div>
+                <Avatar className="w-14 h-14">
+                  <AvatarImage 
+                    src={property.host_avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"} 
+                    alt={property.host_name}
+                  />
+                  <AvatarFallback className="bg-gray-200 text-gray-600 text-lg font-semibold">
+                    {property.host_name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+            </div>
+
+            {/* Host Section */}
+            <div className="border-b border-gray-200 pb-8 mb-8">
+              <div className="flex items-start space-x-4">
+                <Avatar className="w-12 h-12">
+                  <AvatarImage 
+                    src={property.host_avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"} 
+                    alt={property.host_name}
+                  />
+                  <AvatarFallback className="bg-gray-200 text-gray-600 font-semibold">
+                    {property.host_name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900">Hosted by {property.host_name}</h3>
+                  <p className="text-gray-600 text-sm">Superhost · 2 years hosting</p>
+                  <div className="flex items-center mt-4 space-x-4">
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 text-black fill-current mr-1" />
+                      <span className="font-medium">4.9</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="font-medium">127</span>
+                      <span className="text-gray-600 ml-1">Reviews</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Shield className="h-4 w-4 text-gray-600 mr-1" />
+                      <span className="text-gray-600">Identity verified</span>
                     </div>
                   </div>
+                  {!showHostInfo ? (
+                    <Button 
+                      variant="outline"
+                      className="mt-4"
+                      onClick={handleRevealHostInfo}
+                    >
+                      Contact host
+                    </Button>
+                  ) : (
+                    <div className="mt-4 space-y-2">
+                      <a href={`tel:${property.host_phone}`}>
+                        <Button variant="outline" size="sm" className="mr-2">
+                          <Phone className="h-4 w-4 mr-2" />
+                          {property.host_phone || '+91 90000 00000'}
+                        </Button>
+                      </a>
+                      <a href="mailto:host@example.com">
+                        <Button variant="outline" size="sm">
+                          <Mail className="h-4 w-4 mr-2" />
+                          Message
+                        </Button>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
 
-                  {/* Enhanced Tags */}
-                  <div className="flex flex-wrap gap-3">
-                    <Badge className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 text-sm">
-                      <Users className="h-4 w-4 mr-2" />
-                      Co-living Space
-                    </Badge>
-                    <Badge variant="outline" className="border-blue-200 text-blue-700 px-4 py-2 text-sm">
-                      <Home className="h-4 w-4 mr-2" />
-                      {property.property_type}
-                    </Badge>
-                    <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 text-sm">
-                      <Shield className="h-4 w-4 mr-2" />
-                      Verified Property
-                    </Badge>
+            {/* Description */}
+            <div className="border-b border-gray-200 pb-8 mb-8">
+              <p className="text-gray-700 leading-relaxed">
+                {property.description || 'Experience comfortable co-living in this beautifully designed space. Perfect for students and young professionals looking for a vibrant community and modern amenities.'}
+              </p>
+            </div>
+
+            {/* What this place offers */}
+            <div className="border-b border-gray-200 pb-8 mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">What this place offers</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {propertyFeatures.amenities.map((amenity, index) => {
+                  const IconComponent = amenity.icon;
+                  return (
+                    <div key={index} className="flex items-center space-x-4 py-2">
+                      <IconComponent className="h-5 w-5 text-gray-600" />
+                      <span className="text-gray-700">{amenity.name}</span>
+                    </div>
+                  );
+                })}
+                {property.amenities && property.amenities.slice(0, 6).map((amenity, index) => (
+                  <div key={index + 4} className="flex items-center space-x-4 py-2">
+                    <CheckCircle2 className="h-5 w-5 text-gray-600" />
+                    <span className="text-gray-700">{amenity}</span>
                   </div>
+                ))}
+              </div>
+            </div>
 
-                  {/* Price and Rating */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-4xl font-bold text-gray-900">
-                        ₹{pricingData[selectedSharingType].price.toLocaleString()}
-                      </span>
-                      <span className="text-gray-600 ml-2 text-lg">/month</span>
-                      <div className="text-sm text-gray-500 mt-1">Starting from single sharing</div>
+            {/* Location */}
+            <div className="border-b border-gray-200 pb-8 mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Where you'll be</h3>
+              <div className="aspect-video bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
+                <div className="text-center">
+                  <MapIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-600">Interactive map</p>
+                </div>
+              </div>
+              <p className="text-gray-700 mb-4">{property.location}</p>
+              
+              {/* Nearby facilities */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-gray-900">What's nearby</h4>
+                {propertyFeatures.nearbyFacilities.map((facility, index) => {
+                  const IconComponent = facility.icon;
+                  return (
+                    <div key={index} className="flex items-center justify-between py-2">
+                      <div className="flex items-center space-x-3">
+                        <IconComponent className="h-4 w-4 text-gray-600" />
+                        <span className="text-gray-700">{facility.name}</span>
+                      </div>
+                      <span className="text-gray-600 text-sm">{facility.distance}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Reviews */}
+            <div className="mb-8">
+              <div className="flex items-center mb-6">
+                <Star className="h-5 w-5 text-black fill-current mr-2" />
+                <span className="text-xl font-semibold text-gray-900">
+                  {property.rating} · {reviews.length} reviews
+                </span>
+              </div>
+              
+              {reviewsLoading ? (
+                <div className="text-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin mx-auto mb-4 text-gray-600" />
+                  <p className="text-gray-600">Loading reviews...</p>
+                </div>
+              ) : reviews.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {reviews.slice(0, 6).map((review) => (
+                    <div key={review.id} className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage 
+                            src={review.user_avatar || `https://images.unsplash.com/photo-1535713875002-d1a27596b850?w=150&h=150&fit=crop&crop=face`} 
+                            alt={review.user_name} 
+                          />
+                          <AvatarFallback className="bg-gray-200 text-gray-600 font-semibold">
+                            {review.user_name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium text-gray-900">{review.user_name}</p>
+                          <p className="text-sm text-gray-600">{formatDate(review.created_at)}</p>
+                        </div>
+                      </div>
+                      <p className="text-gray-700 text-sm leading-relaxed">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-600">No reviews yet</p>
+                </div>
+              )}
+              
+              {reviews.length > 6 && (
+                <Button variant="outline" className="mt-6">
+                  Show all {reviews.length} reviews
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Booking Card - Sticky on Desktop */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24">
+              <Card className="shadow-lg border border-gray-200">
+                <CardContent className="p-6">
+                  <div className="flex items-baseline justify-between mb-6">
+                    <div className="flex items-baseline">
+                      <span className="text-2xl font-semibold">₹{property.price_single.toLocaleString()}</span>
+                      <span className="text-gray-600 ml-1">night</span>
                     </div>
                     {property.rating && (
-                      <div className="text-right">
-                        <div className="flex items-center justify-end mb-1">
-                          <Star className="h-6 w-6 text-yellow-400 fill-current mr-1" />
-                          <span className="text-2xl font-bold text-gray-900">{property.rating}</span>
-                        </div>
-                        <span className="text-gray-600 text-sm">({reviews.length} reviews)</span>
+                      <div className="flex items-center">
+                        <Star className="h-4 w-4 text-black fill-current mr-1" />
+                        <span className="font-medium text-sm">{property.rating}</span>
+                        <span className="text-gray-600 text-sm mx-1">·</span>
+                        <button className="text-gray-600 text-sm underline">
+                          {reviews.length} reviews
+                        </button>
                       </div>
                     )}
                   </div>
 
-                  {/* Quick Stats */}
-                  <div className="grid grid-cols-3 gap-6 mt-8">
-                    <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
-                      <Calendar className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                      <p className="text-sm font-medium text-gray-700">Move-in</p>
-                      <p className="text-lg font-semibold text-blue-600">{property.move_in}</p>
-                    </div>
-                    <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
-                      <Users className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                      <p className="text-sm font-medium text-gray-700">Sharing</p>
-                      <p className="text-lg font-semibold text-purple-600 capitalize">Available</p>
-                    </div>
-                    <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
-                      <Shield className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                      <p className="text-sm font-medium text-gray-700">Status</p>
-                      <p className="text-lg font-semibold text-green-600">
-                        {property.available ? 'Available' : 'Not Available'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  <div className="mt-8">
-                    <h3 className="text-xl font-semibold mb-4 text-gray-900">About this place</h3>
-                    <p className="text-gray-600 leading-relaxed text-lg">
-                      {property.description || 'Experience comfortable co-living in this beautifully designed space. Perfect for students and young professionals looking for a vibrant community and modern amenities.'}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Enhanced Location & Map */}
-            <Card className="shadow-lg bg-white">
-              <CardContent className="p-8">
-                <h3 className="text-2xl font-semibold mb-6 flex items-center text-gray-900">
-                  <MapIcon className="h-6 w-6 mr-3 text-blue-600" />
-                  Location & Connectivity
-                </h3>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Enhanced Map */}
-                  <div className="space-y-4">
-                    <div className="relative aspect-video bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl overflow-hidden shadow-inner">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="text-center">
-                          <MapIcon className="h-16 w-16 text-blue-500 mx-auto mb-4 opacity-50" />
-                          <p className="text-gray-600 font-medium">Interactive Map</p>
-                          <p className="text-sm text-gray-500">Click to explore the area</p>
-                        </div>
+                  <div className="space-y-4 mb-6">
+                    <div className="grid grid-cols-2 border border-gray-300 rounded-lg">
+                      <div className="p-3 border-r border-gray-300">
+                        <label className="block text-xs font-medium text-gray-900 mb-1">CHECK-IN</label>
+                        <input 
+                          type="date" 
+                          className="w-full text-sm bg-transparent border-none p-0 focus:ring-0"
+                        />
                       </div>
-                      <div className="absolute top-4 left-4">
-                        <Badge className="bg-white/90 text-blue-600 shadow-lg">
-                          <Navigation className="h-3 w-3 mr-1" />
-                          Prime Location
-                        </Badge>
+                      <div className="p-3">
+                        <label className="block text-xs font-medium text-gray-900 mb-1">CHECKOUT</label>
+                        <input 
+                          type="date" 
+                          className="w-full text-sm bg-transparent border-none p-0 focus:ring-0"
+                        />
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center">
-                        <MapPin className="h-5 w-5 text-red-500 mr-2" />
-                        <div>
-                          <p className="font-medium text-gray-900">{property.location}</p>
-                          <p className="text-sm text-gray-600">Exact location shown after booking</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        View Area
-                      </Button>
+                    <div className="border border-gray-300 rounded-lg p-3">
+                      <label className="block text-xs font-medium text-gray-900 mb-1">GUESTS</label>
+                      <select className="w-full text-sm bg-transparent border-none p-0 focus:ring-0">
+                        <option>1 guest</option>
+                        <option>2 guests</option>
+                        <option>3 guests</option>
+                      </select>
                     </div>
                   </div>
 
-                  {/* Enhanced Nearby Facilities */}
-                  <div className="space-y-4">
-                    <h4 className="text-lg font-semibold text-gray-900">What's Nearby</h4>
-                    <div className="space-y-3">
-                      {propertyFeatures.nearbyFacilities.map((facility, index) => {
-                        const IconComponent = facility.icon;
-                        return (
-                          <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                            <div className="flex items-center space-x-3">
-                              <div className={`p-2 rounded-lg bg-white shadow-sm`}>
-                                <IconComponent className={`h-5 w-5 ${facility.color}`} />
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-900">{facility.name}</p>
-                                <p className="text-sm text-gray-600">{facility.time}</p>
-                              </div>
-                            </div>
-                            <Badge variant="outline" className="text-xs">
-                              {facility.distance}
-                            </Badge>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Enhanced Amenities */}
-            <Card className="shadow-lg bg-white">
-              <CardContent className="p-8">
-                <h3 className="text-2xl font-semibold mb-6 flex items-center text-gray-900">
-                  <Sofa className="h-6 w-6 mr-3 text-blue-600" />
-                  Amenities & Features
-                </h3>
-                
-                <Tabs defaultValue="furniture" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 mb-6">
-                    <TabsTrigger value="furniture">Furniture</TabsTrigger>
-                    <TabsTrigger value="amenities">Amenities</TabsTrigger>
-                    <TabsTrigger value="safety">Safety</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="furniture" className="space-y-4">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {propertyFeatures.furniture.map((item, index) => (
-                        <div key={index} className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg">
-                          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                          <span className="text-gray-700 font-medium">{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="amenities" className="space-y-4">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {property.amenities && property.amenities.length > 0 ? (
-                        property.amenities.map((amenity, index) => (
-                          <div key={index} className="flex items-center space-x-3 p-4 bg-green-50 rounded-lg">
-                            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                            <span className="text-gray-700 font-medium">{amenity}</span>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="col-span-full p-8 text-center text-gray-500">
-                          <Sofa className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                          <p>No additional amenities listed for this property.</p>
-                        </div>
-                      )}
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="safety" className="space-y-4">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {propertyFeatures.safetyFeatures.map((feature, index) => (
-                        <div key={index} className="flex items-center space-x-3 p-4 bg-red-50 rounded-lg">
-                          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                          <span className="text-gray-700 font-medium">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-
-            {/* Enhanced Reviews Section */}
-            <Card className="shadow-lg bg-white">
-              <CardContent className="p-8">
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-2xl font-semibold text-gray-900">Guest Reviews</h3>
-                  {property.rating && (
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center bg-yellow-50 px-4 py-2 rounded-full">
-                        <Star className="h-6 w-6 text-yellow-400 fill-current mr-2" />
-                        <span className="text-xl font-bold text-gray-900">{property.rating}</span>
-                      </div>
-                      <span className="text-gray-600">({reviews.length} reviews)</span>
-                    </div>
-                  )}
-                </div>
-                
-                {reviewsLoading ? (
-                  <div className="text-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-                    <p className="text-gray-600">Loading reviews...</p>
-                  </div>
-                ) : reviews.length > 0 ? (
-                  <div className="space-y-6">
-                    {reviews.slice(0, 3).map((review) => (
-                      <div key={review.id} className="p-6 bg-gray-50 rounded-xl">
-                        <div className="flex items-start space-x-4">
-                          <Avatar className="w-12 h-12">
-                            <AvatarImage 
-                              src={review.user_avatar || `https://images.unsplash.com/photo-1535713875002-d1a27596b850?w=150&h=150&fit=crop&crop=face`} 
-                              alt={review.user_name} 
-                            />
-                            <AvatarFallback className="bg-blue-100 text-blue-600 font-semibold">
-                              {review.user_name.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-3">
-                              <h4 className="font-semibold text-gray-900">{review.user_name}</h4>
-                              <span className="text-sm text-gray-500">{formatDate(review.created_at)}</span>
-                            </div>
-                            <div className="flex items-center mb-3">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-4 w-4 ${
-                                    i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <p className="text-gray-700 leading-relaxed">{review.comment}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <MessageCircle className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                    <p className="text-gray-600 text-lg">No reviews yet for this property.</p>
-                    <p className="text-gray-500 text-sm mt-2">Be the first to share your experience!</p>
-                  </div>
-                )}
-                
-                {reviews.length > 3 && (
-                  <Button variant="outline" className="w-full mt-6 border-blue-200 text-blue-600 hover:bg-blue-50">
-                    View All {reviews.length} Reviews
+                  <Button 
+                    className="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 rounded-lg mb-4"
+                    size="lg"
+                  >
+                    Reserve
                   </Button>
-                )}
-              </CardContent>
-            </Card>
-          </div>
 
-          {/* Enhanced Sidebar - Spans 1 column */}
-          <div className="xl:col-span-1 space-y-6">
-            {/* Enhanced Host Profile */}
-            <Card className="shadow-xl bg-white sticky top-6">
-              <CardContent className="p-8">
-                <div className="text-center space-y-6">
-                  {/* Host Avatar */}
-                  <div className="relative">
-                    <Avatar className="w-24 h-24 mx-auto border-4 border-white shadow-lg">
-                      <AvatarImage 
-                        src={property.host_avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"} 
-                        alt={property.host_name}
-                        className="object-cover"
-                      />
-                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white text-2xl font-bold">
-                        {property.host_name.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute -bottom-2 -right-2 bg-green-500 text-white rounded-full p-1">
-                      <Shield className="h-4 w-4" />
+                  <p className="text-center text-gray-600 text-sm mb-4">
+                    You won't be charged yet
+                  </p>
+
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 underline">₹{property.price_single.toLocaleString()} x 5 nights</span>
+                      <span>₹{(property.price_single * 5).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 underline">Cleaning fee</span>
+                      <span>₹1,500</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 underline">Service fee</span>
+                      <span>₹2,000</span>
+                    </div>
+                    <div className="border-t border-gray-200 pt-3 flex justify-between font-semibold">
+                      <span>Total</span>
+                      <span>₹{(property.price_single * 5 + 1500 + 2000).toLocaleString()}</span>
                     </div>
                   </div>
-                  
-                  {/* Host Info */}
-                  <div>
-                    <h3 className="font-bold text-xl text-gray-900">{property.host_name}</h3>
-                    <p className="text-gray-600">Verified Property Host</p>
-                    <div className="flex items-center justify-center mt-2">
-                      <Badge className="bg-green-100 text-green-800">
-                        <Shield className="h-3 w-3 mr-1" />
-                        Verified Host
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* Host Stats */}
-                  <div className="grid grid-cols-2 gap-4 py-4 border-y border-gray-100">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-blue-600">4.8</p>
-                      <p className="text-xs text-gray-500">Host Rating</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-purple-600">50+</p>
-                      <p className="text-xs text-gray-500">Properties</p>
-                    </div>
-                  </div>
-
-                  {/* Contact Actions */}
-                  <div className="space-y-3">
-                    {!showHostInfo ? (
-                      <div className="space-y-3">
-                        <Button 
-                          onClick={handleRevealHostInfo}
-                          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
-                        >
-                          <Phone className="h-4 w-4 mr-2" />
-                          Reveal Contact Info
-                        </Button>
-                        <div className="bg-blue-50 p-4 rounded-lg">
-                          <p className="text-xs text-blue-700 text-center">
-                            Get instant access to host contact details
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        <a href={`tel:${property.host_phone}`}>
-                          <Button className="w-full bg-green-600 hover:bg-green-700 text-white shadow-lg">
-                            <Phone className="h-4 w-4 mr-2" />
-                            {property.host_phone || '+91 90000 00000'}
-                          </Button>
-                        </a>
-                        <a href="mailto:host@example.com">
-                          <Button variant="outline" className="w-full border-blue-200 text-blue-600 hover:bg-blue-50">
-                            <Mail className="h-4 w-4 mr-2" />
-                            Email Host
-                          </Button>
-                        </a>
-                        <a 
-                          href={`https://wa.me/${property.host_phone?.replace(/[^\d]/g, '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Button className="w-full bg-green-500 hover:bg-green-600 text-white shadow-lg">
-                            <MessageCircle className="h-4 w-4 mr-2" />
-                            WhatsApp Chat
-                          </Button>
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Enhanced Action Buttons */}
-            <div className="space-y-4">
-              <Button 
-                onClick={handleWishlistToggle}
-                variant="outline" 
-                className="w-full border-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 shadow-lg"
-                size="lg"
-              >
-                <Heart className={`h-5 w-5 mr-2 ${isInWishlist ? 'fill-current' : ''}`} />
-                {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
-              </Button>
-              
-              {/* Enhanced Virtual Tour Button */}
-              <div className="relative">
-                <Button 
-                  disabled
-                  className="w-full bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 text-white shadow-lg opacity-60 cursor-not-allowed"
-                  size="lg"
-                >
-                  <Camera className="h-5 w-5 mr-2" />
-                  Take Virtual Tour - 360°
-                </Button>
-                <div className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
-                  Coming Soon
-                </div>
-              </div>
-
-              <Button 
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
-                size="lg"
-              >
-                Book Now
-              </Button>
+                </CardContent>
+              </Card>
             </div>
-
-            {/* Enhanced Safety Info */}
-            <Card className="shadow-lg bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-              <CardContent className="p-6">
-                <h4 className="font-semibold text-green-800 mb-4 flex items-center">
-                  <Shield className="h-5 w-5 mr-2" />
-                  Safety & Security
-                </h4>
-                <div className="space-y-3">
-                  {propertyFeatures.safetyFeatures.slice(0, 3).map((feature, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-green-700 text-sm">{feature}</span>
-                    </div>
-                  ))}
-                  <Button variant="ghost" size="sm" className="w-full text-green-600 hover:text-green-700">
-                    View All Safety Features
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
 
@@ -876,57 +660,6 @@ const PropertyDetails = () => {
                 Accept & Continue
               </Button>
             </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Virtual Tour Modal */}
-        <Dialog open={showVirtualTourModal} onOpenChange={setShowVirtualTourModal}>
-          <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-hidden p-0">
-            <DialogHeader className="p-6 pb-0">
-              <DialogTitle className="flex items-center gap-2">
-                <Play className="h-5 w-5" />
-                Virtual Tour - {property.title}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="p-6">
-              <Tabs defaultValue="single" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="single">Single Sharing</TabsTrigger>
-                  <TabsTrigger value="double">Double Sharing</TabsTrigger>
-                  <TabsTrigger value="triple">Triple Sharing</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="single" className="mt-4">
-                  <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <Play className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                      <h3 className="text-xl font-semibold mb-2">Single Sharing - Virtual Tour</h3>
-                      <p className="text-gray-300">360° view of single occupancy room</p>
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="double" className="mt-4">
-                  <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <Play className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                      <h3 className="text-xl font-semibold mb-2">Double Sharing - Virtual Tour</h3>
-                      <p className="text-gray-300">360° view of double occupancy room</p>
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="triple" className="mt-4">
-                  <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <Play className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                      <h3 className="text-xl font-semibold mb-2">Triple Sharing - Virtual Tour</h3>
-                      <p className="text-gray-300">360° view of triple occupancy room</p>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </div>
           </DialogContent>
         </Dialog>
       </div>
